@@ -18,6 +18,7 @@ namespace BlackJack
         public bool IsPair { get => IsPair_(); }
         bool isSoft = false;
         public bool IsSoft { get => IsSoft_(); }
+        public bool IsBlackJack { get => IsBlackJack_(); }
 
         public int CalculateValue() 
         {
@@ -113,6 +114,16 @@ namespace BlackJack
         {
             CalculateValue();
             return isSoft;
+        }
+
+        bool IsBlackJack_()
+        {
+            if (Cards.Count == 2 && Value == 21)
+            {
+                CurrentState = State.BlackJack;
+                return true;
+            }
+            return false;
         }
     }
 }

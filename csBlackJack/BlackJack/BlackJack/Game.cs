@@ -52,7 +52,7 @@ namespace BlackJack
         {
             while (hand.CurrentState == Hand.State.Playing)
             {
-                if (hand.Cards.Count == 2 && hand.Value == 21)
+                if (hand.IsBlackJack)
                 {
                     hand.CurrentState = Hand.State.BlackJack;
                     continue;
@@ -97,7 +97,7 @@ namespace BlackJack
                 DoResult(player);
             }
             DoResult(dealer.Hand);
-            if (deck.Count - (didx + 1) < Players.Count * 4)
+            if (deck.Count - (didx + 1) < (Players.Count + 1) * 4)
             {
                 Shuffle(deck);
             }
@@ -201,6 +201,21 @@ namespace BlackJack
             }
             dealer.Hand.Cards.Add(NextCard(false));
 
+            // the dealer instantly wins on BJ
+            if (dealer.Hand.IsBlackJack)
+            {
+                foreach (var hand in hands)
+                {
+                    if (hand.IsBlackJack)
+                    {
+                        hand.CurrentState = Hand.State.Push;
+                    }
+                    else
+                    {
+                        hand.CurrentState = Hand.State.Lost;
+                    }
+                }
+            }
         }
 
         Card NextCard(bool faceDown)
@@ -277,7 +292,7 @@ namespace BlackJack
         public void AddPlayer(IPlayer player)
         {
             Players.Add(player);
-            Console.WriteLine($"{player.Name} plays");
+
         }
     }
 }

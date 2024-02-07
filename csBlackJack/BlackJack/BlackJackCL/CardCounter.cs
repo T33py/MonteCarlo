@@ -29,6 +29,9 @@ namespace BlackJackCL
         public List<Hand> Hands { get; set; } = new List<Hand>();
 
         public int count = 0;
+
+        public BettingStrategy BettingStrategy { get; set; } = new BettingStrategy();
+
         public CardCounter(int startingMoney)
         {
             this.StartingMoney = startingMoney;
@@ -68,34 +71,7 @@ namespace BlackJackCL
 
         public int Bet()
         {
-            int bet = 10;
-
-            // lost 1,64% with no bet progression
-            // lost 0,7% with 100 on count >= 3
-            // lost 0,63% with 100 on count >= 4
-            // lost 0,6% with 100 on count >= 5
-            switch (count)
-            {
-                //case 0: break;
-                //case 1:
-                //    //bet = 15;
-                //    break;
-                //case 2:
-                //    //bet = 20;
-                //    break;
-                //case 3:
-                //    bet = 40;
-                //    break;
-                //case 4:
-                //    bet = 50;
-                //    break;
-                case >= 5:
-                    bet = 100;
-                    break;
-
-                default: break;
-            }
-
+            int bet = BettingStrategy.Bet(count);
             AllBetTotal += bet;
             return bet;
         }

@@ -14,6 +14,10 @@ namespace BlackJackCL
         public int MaxRounds { get; set; } = 10000000;
         int round = 0;
         
+        public Dictionary<IPlayer,  SimulationResult> PlayerResultMap { get; set; }
+
+        public List<IPlayer> Players { get => BlackJack.Players; }
+
 
         public BlackJackWrapper() 
         {
@@ -24,31 +28,23 @@ namespace BlackJackCL
         {
             BlackJack = new Game(6);
 
-            //BlackJack.AddPlayer(player);
-            BlackJack.AddPlayer(new CardCounter(100000));
-            var _p = new PerfectBasicStrategyPlayer(100000);
-            BlackJack.AddPlayer(_p);
-            //Console.WriteLine(_p.PrintStrategy());
-            var _sp = new SlightlySmarterPlayer(100000);
-            _sp.standOn = 16;
-            BlackJack.AddPlayer(_sp);
-            BlackJack.AddPlayer(new SimplePlayer());
+            BlackJack.AddPlayer(new CardCounter(0));
 
             round = 0;
+            PlayerResultMap = new Dictionary<IPlayer, SimulationResult>();
         }
-
 
         public void RunSimulation()
         {
 
             //while (game.player.Money > 0 && rounds != maxRounds)
-            Console.WriteLine("Running games");
+            //Console.WriteLine("Running games");
             while (round != MaxRounds)
             {
                 BlackJack.PlayRound();
                 round++;
             }
-            Console.WriteLine("Ended games");
+            //Console.WriteLine("Ended games");
 
             var players = BlackJack.Players;
 
@@ -58,10 +54,20 @@ namespace BlackJackCL
                 float diff = endingMoney - p.StartingMoney;
                 float lossP = (diff / p.AllBetTotal) * 100;
                 float pr = diff / round;
-                Console.WriteLine($"{p.Name}:");
-                Console.WriteLine($"  Ended with {endingMoney} after {round} rounds");
-                Console.WriteLine($"  Edge is {lossP:0.00}%");
-                Console.WriteLine($"     netting {pr} per round");
+
+                var result = new SimulationResult();
+                result.Player = p;
+                result.EndingMoney = endingMoney;
+                result.DifferenceInBalance = diff;
+                result.LossInPercent = lossP;
+                result.AverageBalanceChangePerRound = pr;
+                result.Rounds = round;
+
+
+                PlayerResultMap.Add(p, result);
+
+                //Console.WriteLine(result.ToString());
+                
             }
         }
     }
