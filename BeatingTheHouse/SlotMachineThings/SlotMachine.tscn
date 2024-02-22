@@ -1,0 +1,58 @@
+[gd_scene load_steps=7 format=3 uid="uid://ds80m7y6wjiei"]
+
+[ext_resource type="Texture2D" uid="uid://dem6su4ulpekt" path="res://SlotMachineThings/Ace.png" id="1_5wgof"]
+[ext_resource type="Texture2D" uid="uid://66oqs34wykp4" path="res://SlotMachineThings/SMBG.png" id="1_cyoxh"]
+[ext_resource type="Script" path="res://SlotMachineThings/Wheel.gd" id="1_pngbk"]
+[ext_resource type="Texture2D" uid="uid://cvqe6bl0n0t5i" path="res://SlotMachineThings/Qeen.png" id="2_m6lej"]
+[ext_resource type="Script" path="res://SlotMachineThings/Tile.gd" id="3_8h6d0"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_aat5b"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_5wgof")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_m6lej")
+}],
+"loop": false,
+"name": &"default",
+"speed": 2.0
+}]
+
+[node name="SlotMachine" type="Node2D"]
+position = Vector2(386, 224)
+
+[node name="Wheel1" type="Node2D" parent="."]
+position = Vector2(-9, -216)
+scale = Vector2(1.64819, 1.6528)
+script = ExtResource("1_pngbk")
+
+[node name="Tile1" type="AnimatedSprite2D" parent="Wheel1"]
+position = Vector2(154, 110)
+scale = Vector2(0.123344, 0.133776)
+sprite_frames = SubResource("SpriteFrames_aat5b")
+script = ExtResource("3_8h6d0")
+
+[node name="Tile2" type="AnimatedSprite2D" parent="Wheel1"]
+position = Vector2(154, 253)
+scale = Vector2(0.123344, 0.133776)
+sprite_frames = SubResource("SpriteFrames_aat5b")
+script = ExtResource("3_8h6d0")
+
+[node name="Tile3" type="AnimatedSprite2D" parent="Wheel1"]
+position = Vector2(154, 394)
+scale = Vector2(0.123344, 0.133776)
+sprite_frames = SubResource("SpriteFrames_aat5b")
+script = ExtResource("3_8h6d0")
+
+[node name="Tile4" type="AnimatedSprite2D" parent="Wheel1"]
+position = Vector2(154, -30)
+scale = Vector2(0.123344, 0.133776)
+sprite_frames = SubResource("SpriteFrames_aat5b")
+script = ExtResource("3_8h6d0")
+
+[node name="MachinePanel" type="Sprite2D" parent="."]
+position = Vector2(574, 321)
+scale = Vector2(1, 1.01)
+texture = ExtResource("1_cyoxh")
