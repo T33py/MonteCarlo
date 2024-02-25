@@ -1,10 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://ds80m7y6wjiei"]
+[gd_scene load_steps=9 format=3 uid="uid://ds80m7y6wjiei"]
 
 [ext_resource type="Texture2D" uid="uid://dem6su4ulpekt" path="res://SlotMachineThings/Ace.png" id="1_5wgof"]
 [ext_resource type="Texture2D" uid="uid://66oqs34wykp4" path="res://SlotMachineThings/SMBG.png" id="1_cyoxh"]
 [ext_resource type="Script" path="res://SlotMachineThings/Wheel.gd" id="1_pngbk"]
+[ext_resource type="Script" path="res://SlotMachineThings/SlotMachine.gd" id="1_qqvce"]
 [ext_resource type="Texture2D" uid="uid://cvqe6bl0n0t5i" path="res://SlotMachineThings/Qeen.png" id="2_m6lej"]
 [ext_resource type="Script" path="res://SlotMachineThings/Tile.gd" id="3_8h6d0"]
+[ext_resource type="Script" path="res://SlotMachineThings/SpinButton.gd" id="7_yt4c8"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_aat5b"]
 animations = [{
@@ -21,12 +23,21 @@ animations = [{
 }]
 
 [node name="SlotMachine" type="Node2D"]
-position = Vector2(386, 224)
+position = Vector2(260, 146)
+scale = Vector2(0.66, 0.66)
+script = ExtResource("1_qqvce")
 
 [node name="Wheel1" type="Node2D" parent="."]
+z_index = -1
 position = Vector2(-9, -216)
 scale = Vector2(1.64819, 1.6528)
 script = ExtResource("1_pngbk")
+
+[node name="Tile0" type="AnimatedSprite2D" parent="Wheel1"]
+position = Vector2(154, -28)
+scale = Vector2(0.123344, 0.133776)
+sprite_frames = SubResource("SpriteFrames_aat5b")
+script = ExtResource("3_8h6d0")
 
 [node name="Tile1" type="AnimatedSprite2D" parent="Wheel1"]
 position = Vector2(154, 110)
@@ -47,7 +58,7 @@ sprite_frames = SubResource("SpriteFrames_aat5b")
 script = ExtResource("3_8h6d0")
 
 [node name="Tile4" type="AnimatedSprite2D" parent="Wheel1"]
-position = Vector2(154, -30)
+position = Vector2(154, 535)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
 script = ExtResource("3_8h6d0")
@@ -56,3 +67,14 @@ script = ExtResource("3_8h6d0")
 position = Vector2(574, 321)
 scale = Vector2(1, 1.01)
 texture = ExtResource("1_cyoxh")
+
+[node name="SpinButton" type="Button" parent="."]
+z_index = 1
+offset_left = 1242.0
+offset_top = 653.0
+offset_right = 1287.0
+offset_bottom = 684.0
+scale = Vector2(3.75016, 3.33684)
+action_mode = 0
+text = "SPIN"
+script = ExtResource("7_yt4c8")
