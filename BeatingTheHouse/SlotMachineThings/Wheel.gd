@@ -4,7 +4,7 @@ var tiles = []
 var positions = []
 
 var spin_time = 0
-var max_spin_time = 3
+var max_spin_time = 2
 var spinning = false
 
 # Called when the node enters the scene tree for the first time.
@@ -21,6 +21,7 @@ func _ready():
 		positions.append(tile.position)
 		t.positions = positions
 		t.current_position = i
+		t.my_home = i
 		i += 1
 		
 	
@@ -29,11 +30,10 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	var mess_with = tiles[0] as AnimatedSprite2D
-	mess_with.am_supposed_to_be = mess_with.frames["A"]
+#	var mess_with = tiles[0] as AnimatedSprite2D
+#	mess_with.am_supposed_to_be = mess_with.frames["A"]
 	
 	if spinning:
-		print(delta)
 		spin_time += delta
 		if spin_time > max_spin_time:
 			stop_spin()
@@ -41,6 +41,9 @@ func _process(delta):
 
 
 func spin():
+	'''
+	Start spinning the wheel.
+	'''
 #	print("Spin")
 	for tile in tiles:
 		tile.goto_next_position()
@@ -48,11 +51,14 @@ func spin():
 	spinning = true
 	spin_time = 0
 	pass
-	
+
 func stop_spin():
+	'''
+	Force the wheel to stop spinning
+	'''
 #	print("Stop Spin")
 	for tile in tiles:
-		tile.stop = true
+		tile.stop_spinning()
 
 	spinning = false
 	pass

@@ -34,7 +34,7 @@ scale = Vector2(1.64819, 1.6528)
 script = ExtResource("1_pngbk")
 
 [node name="Tile0" type="AnimatedSprite2D" parent="Wheel1"]
-position = Vector2(154, -28)
+position = Vector2(154, -30)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
 script = ExtResource("3_8h6d0")
@@ -46,19 +46,19 @@ sprite_frames = SubResource("SpriteFrames_aat5b")
 script = ExtResource("3_8h6d0")
 
 [node name="Tile2" type="AnimatedSprite2D" parent="Wheel1"]
-position = Vector2(154, 253)
+position = Vector2(154, 250)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
 script = ExtResource("3_8h6d0")
 
 [node name="Tile3" type="AnimatedSprite2D" parent="Wheel1"]
-position = Vector2(154, 394)
+position = Vector2(154, 390)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
 script = ExtResource("3_8h6d0")
 
 [node name="Tile4" type="AnimatedSprite2D" parent="Wheel1"]
-position = Vector2(154, 535)
+position = Vector2(154, 530)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
 script = ExtResource("3_8h6d0")
