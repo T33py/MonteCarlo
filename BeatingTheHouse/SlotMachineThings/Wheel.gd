@@ -46,7 +46,7 @@ func spin():
 	'''
 #	print("Spin")
 	for tile in tiles:
-		tile.goto_next_position()
+		tile.spin()
 		
 	spinning = true
 	spin_time = 0

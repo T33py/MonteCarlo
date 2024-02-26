@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://ds80m7y6wjiei"]
+[gd_scene load_steps=10 format=3 uid="uid://ds80m7y6wjiei"]
 
 [ext_resource type="Texture2D" uid="uid://dem6su4ulpekt" path="res://SlotMachineThings/Ace.png" id="1_5wgof"]
 [ext_resource type="Texture2D" uid="uid://66oqs34wykp4" path="res://SlotMachineThings/SMBG.png" id="1_cyoxh"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://cvqe6bl0n0t5i" path="res://SlotMachineThings/Qeen.png" id="2_m6lej"]
 [ext_resource type="Script" path="res://SlotMachineThings/Tile.gd" id="3_8h6d0"]
 [ext_resource type="Script" path="res://SlotMachineThings/SpinButton.gd" id="7_yt4c8"]
+[ext_resource type="Texture2D" uid="uid://bd0o6krij426l" path="res://SlotMachineThings/Art/Tilebg.png" id="8_mang3"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_aat5b"]
 animations = [{
@@ -69,7 +70,6 @@ scale = Vector2(1, 1.01)
 texture = ExtResource("1_cyoxh")
 
 [node name="SpinButton" type="Button" parent="."]
-z_index = 1
 offset_left = 1242.0
 offset_top = 653.0
 offset_right = 1287.0
@@ -78,3 +78,9 @@ scale = Vector2(3.75016, 3.33684)
 action_mode = 0
 text = "SPIN"
 script = ExtResource("7_yt4c8")
+
+[node name="Tilebg" type="Sprite2D" parent="."]
+z_index = -2
+position = Vector2(243.939, 189.394)
+scale = Vector2(0.195707, 0.68743)
+texture = ExtResource("8_mang3")
