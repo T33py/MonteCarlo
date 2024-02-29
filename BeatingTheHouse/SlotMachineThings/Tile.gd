@@ -12,13 +12,16 @@ var moving = false
 var stop = false
 var current_position = 0
 var next_position = 0
-var speed = 500
+var speed = 750
 var wait_to_move = 0
 
-var symbols = ["A", "Q"]
+var symbols = ["10", "J", "Q", "K", "A"]
 var frames = {
-	"A": 0,
-	"Q": 1,
+	"10": 0,
+	"J": 1,
+	"Q": 2,
+	"K": 3,
+	"A": 4,
 }
 
 # Called when the node enters the scene tree for the first time.
@@ -35,6 +38,8 @@ func _process(delta):
 	
 	if wait_to_move > 0:
 		wait_to_move -= delta
+		if wait_to_move <= 0:
+			moving = true
 #		print("{my_home} waiting {time}".format({"my_home": my_home, "time": wait_to_move}))
 	if moving:
 		move_towards_next_position(delta)
@@ -54,18 +59,17 @@ func goto_next_position():
 		next_position = 0
 		position = positions[next_position]
 		current_position = 0
-#		moving = false
 		choose_random_symbol()
 		wait_to_move = positions[current_position].distance_to(positions[1]) / speed
-		pass
+		moving = false
 	
 	# if we are anywhere else
 	else:
 		next_position = current_position + 1 
 		moving = true
 #	print("Moved {my_home} {should_stop}".format({"my_home": my_home, "should_stop": stop}))
-	if my_home == 0:
-		print("{my_home} -> {next_position}".format({"my_home": my_home, "next_position": next_position}))
+#	if my_home == 0:
+#		print("{my_home} -> {next_position}".format({"my_home": my_home, "next_position": next_position}))
 	pass
 	
 func move_towards_next_position(delta):
@@ -84,9 +88,12 @@ func move_towards_next_position(delta):
 		position = position.move_toward(positions[next_position], delta * speed)
 	# when we want to stop moving
 	else:
-		position = positions[next_position]
-		current_position = next_position
+		position = positions[my_home]
+		current_position = my_home
+		next_position = my_home
 		moving = false
+		stop = false
+		wait_to_move = 0
 	
 	pass
 
@@ -97,7 +104,7 @@ func spin():
 
 func stop_spinning():
 	stop = true
-	print("STOP {my_home} {should_stop}".format({"my_home": my_home, "should_stop": stop}))
+#	print("STOP {my_home} {should_stop}".format({"my_home": my_home, "should_stop": stop}))
 	pass
 	
 func choose_random_symbol():

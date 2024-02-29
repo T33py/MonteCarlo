@@ -6,6 +6,9 @@ var positions = []
 var spin_time = 0
 var max_spin_time = 2
 var spinning = false
+var stopping = false
+var frames_between_check_if_stopped = 10
+var frames_since_check_if_stopped = 10
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -23,7 +26,6 @@ func _ready():
 		t.current_position = i
 		t.my_home = i
 		i += 1
-		
 	
 	pass # Replace with function body.
 
@@ -37,8 +39,26 @@ func _process(delta):
 		spin_time += delta
 		if spin_time > max_spin_time:
 			stop_spin()
+	if stopping:
+		if frames_since_check_if_stopped >= frames_between_check_if_stopped:
+			var stopped = true
+			for tile in tiles:
+				if tile.moving:
+					stopped = false
+					break
+			if stopped:
+				spinning = false
+				stopping = false
+		frames_since_check_if_stopped += 1
 	pass
 
+
+func get_result():
+	var outcome = []
+	for i in range(len(tiles)):
+		if i > 0 and i < len(tiles)-1:
+			outcome.append(tiles[i].currently_am)
+	return outcome
 
 func spin():
 	'''
@@ -60,6 +80,7 @@ func stop_spin():
 	for tile in tiles:
 		tile.stop_spinning()
 
-	spinning = false
+	stopping = true
+#	spinning = false
 	pass
 		
