@@ -7,6 +7,7 @@ var balance = 100
 var betting = 1
 var playing = false
 var games_played = 0
+var wheel_start_stop_delay = 0.15
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -15,6 +16,12 @@ func _ready():
 	wheels.append(get_node("Wheel3"))
 	wheels.append(get_node("Wheel4"))
 	wheels.append(get_node("Wheel5"))
+	
+	var delay = 0
+	for i in range(len(wheels)):
+		var wheel = wheels[i]
+		wheel.stop_delay = delay
+		delay += wheel_start_stop_delay
 #	tiles.append(get_node("Tile1"))
 #	tiles.append(get_node("Tile2"))
 #	tiles.append(get_node("Tile3"))
@@ -53,8 +60,10 @@ func play():
 	balance -= betting
 	display_balance()
 	
+	var delay = 0
 	for w in wheels:
-		w.spin()
+		w.spin(delay)
+		delay += wheel_start_stop_delay
 	
 	playing = true
 	pass

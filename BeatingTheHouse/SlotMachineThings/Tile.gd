@@ -14,6 +14,7 @@ var current_position = 0
 var next_position = 0
 var speed = 750
 var wait_to_move = 0
+var wait_to_stop = 0
 
 var symbols = ["10", "J", "Q", "K", "A"]
 var frames = {
@@ -36,13 +37,20 @@ func _process(delta):
 		frame = am_supposed_to_be
 		currently_am = am_supposed_to_be
 	
+	# if we are waiting for something
+	if wait_to_stop > 0:
+		wait_to_stop -= delta
+		if wait_to_stop <= 0:
+			stop = true
 	if wait_to_move > 0:
 		wait_to_move -= delta
 		if wait_to_move <= 0:
 			moving = true
-#		print("{my_home} waiting {time}".format({"my_home": my_home, "time": wait_to_move}))
+			
+	# I LIKE TO MOVE IT
 	if moving:
 		move_towards_next_position(delta)
+	
 	pass
 
 
@@ -97,14 +105,22 @@ func move_towards_next_position(delta):
 	
 	pass
 
-func spin():
+func spin(delay=0):
 	stop = false
 	goto_next_position()
+	if delay > 0:
+		wait_to_move += delay
+		moving = false
 	pass
 
-func stop_spinning():
-	stop = true
+func stop_spinning(delay=0):
+#	stop = true
 #	print("STOP {my_home} {should_stop}".format({"my_home": my_home, "should_stop": stop}))
+	if delay > 0:
+		wait_to_stop = delay
+	else:
+		stop = true
+		
 	pass
 	
 func choose_random_symbol():

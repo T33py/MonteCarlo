@@ -5,9 +5,10 @@ var positions = []
 
 var spin_time = 0
 var max_spin_time = 2
+var stop_delay = 0
 var spinning = false
 var stopping = false
-var frames_between_check_if_stopped = 10
+var frames_between_check_if_stopped = 4
 var frames_since_check_if_stopped = 10
 
 # Called when the node enters the scene tree for the first time.
@@ -37,8 +38,8 @@ func _process(delta):
 	
 	if spinning:
 		spin_time += delta
-		if spin_time > max_spin_time:
-			stop_spin()
+	if spinning and !stopping and spin_time > max_spin_time:
+			stop_spin(stop_delay)
 	if stopping:
 		if frames_since_check_if_stopped >= frames_between_check_if_stopped:
 			var stopped = true
@@ -60,27 +61,29 @@ func get_result():
 			outcome.append(tiles[i].symbols[tiles[i].currently_am])
 	return outcome
 
-func spin():
+func spin(delay = 0):
 	'''
 	Start spinning the wheel.
 	'''
 #	print("Spin")
 	for tile in tiles:
-		tile.spin()
+		tile.spin(delay)
 		
 	spinning = true
+	stopping = false
 	spin_time = 0
 	pass
 
-func stop_spin():
+func stop_spin(delay=0):
 	'''
 	Force the wheel to stop spinning
 	'''
 #	print("Stop Spin")
 	for tile in tiles:
-		tile.stop_spinning()
+		tile.stop_spinning(delay)
 
 	stopping = true
+	spin_time = max_spin_time +1
 #	spinning = false
 	pass
 		
