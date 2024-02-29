@@ -3,6 +3,8 @@ extends Node2D
 var wheels = []
 var positions = []
 
+var balance = 100
+var betting = 1
 var playing = false
 var games_played = 0
 
@@ -18,17 +20,9 @@ func _ready():
 #	tiles.append(get_node("Tile3"))
 #	tiles.append(get_node("Tile4"))
 	
-	
+	display_bet()
+	display_balance()
 	pass # Replace with function body.
-
-func play():
-	games_played += 1
-	print("Game" + str(games_played))
-	for w in wheels:
-		w.spin()
-	
-	playing = true
-	pass
 	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -45,17 +39,44 @@ func _process(delta):
 			var state = []
 			for wheel in wheels:
 				state.append(wheel.get_result())
-			display_win(determine_win(state))
+			var won = determine_win(state)
+			balance += won
+			display_win(won)
+			display_balance()
 	
 	pass
 	
+
+func play():
+	games_played += 1
+	print("Game" + str(games_played))
+	balance -= betting
+	display_balance()
+	
+	for w in wheels:
+		w.spin()
+	
+	playing = true
+	pass
 func determine_win(endstate):
 	print(endstate)
 	if endstate[0][1] == endstate[1][1]:
 		return 1
 	
 	return 0
-	
+
+func display_balance():
+	get_node("BalanceDisplayText").set_text("Balance: " + str(balance))
+	pass
+
 func display_win(value):
 	get_node("WinDisplayText").set_text("WON: " + str(value))
+	pass
+
+func display_bet():
+	get_node("BetDisplayText").set_text("Bet: " + str(betting))
+	pass
+	
+func display_info(message):
+	get_node("InfoDisplayText").set_text("Info: " + str(message))
 	pass
