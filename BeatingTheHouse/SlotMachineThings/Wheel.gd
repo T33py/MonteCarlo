@@ -67,6 +67,7 @@ func spin(delay = 0):
 	'''
 #	print("Spin")
 	for tile in tiles:
+		tile.border.visible = false
 		tile.spin(delay)
 		
 	spinning = true
@@ -87,3 +88,9 @@ func stop_spin(delay=0):
 #	spinning = false
 	pass
 		
+		
+func highlight(tile, color):
+	var t = tiles[tile]
+	t.border.modulate = color
+	t.border.visible = true
+	pass

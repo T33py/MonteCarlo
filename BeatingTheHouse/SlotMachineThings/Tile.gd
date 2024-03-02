@@ -2,6 +2,7 @@ extends AnimatedSprite2D
 
 var time = 0
 
+var border
 var am_supposed_to_be = 0
 var currently_am = 0
 
@@ -27,6 +28,7 @@ var frames = {
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	border = get_node("TileBorder")
 	pass # Replace with function body.
 
 
@@ -67,7 +69,7 @@ func goto_next_position():
 		next_position = 0
 		position = positions[next_position]
 		current_position = 0
-		choose_random_symbol()
+		choose_symbol()
 		wait_to_move = positions[current_position].distance_to(positions[1]) / speed
 		moving = false
 	
@@ -123,7 +125,10 @@ func stop_spinning(delay=0):
 		
 	pass
 	
-func choose_random_symbol():
+func choose_symbol():
+	'''
+	Choose which symbol to display in this sqare
+	'''
 	am_supposed_to_be = frames[symbols.pick_random()]
 	pass
 	
