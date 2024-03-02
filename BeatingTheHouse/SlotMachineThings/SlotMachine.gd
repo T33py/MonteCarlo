@@ -3,12 +3,22 @@ extends Node2D
 var wheels = []
 var positions = []
 var highlight_colors = [Color(1,0,0),Color(0,1,0),Color(0,0,1),Color(1,1,0),Color(1,0,1),Color(0,1,1),]
+var lines_5x3 = [
+	[0,0,0,0,0],
+	[1,1,1,1,1],
+	[2,2,2,2,2],
+	[0,1,2,1,0],
+	[2,1,0,1,2],
+]
 
 var balance = 100
 var betting = 1
 var playing = false
 var games_played = 0
 var wheel_start_stop_delay = 0.15
+
+var playing_lines = true
+var play_lines = 5
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -58,7 +68,9 @@ func play():
 	Player pressed the play button
 	'''
 	if playing:
-		pass
+		print("??")
+		return
+	playing = true
 	
 	games_played += 1
 	print("Game" + str(games_played))
@@ -70,20 +82,25 @@ func play():
 		w.spin(delay)
 		delay += wheel_start_stop_delay
 	
-	playing = true
 	pass
 	
 func determine_win():
+	'''
+	Figure out whether and how much was won this spin.
+	Also handles highlighting the winning tiles.
+	'''
 	var endstate = []
 	for wheel in wheels:
 		endstate.append(wheel.get_result())
 	print(endstate)
 	
+	if playing_lines:
+		return determine_win_by_lines(endstate)
 	return determine_win_by_hits(endstate)
 
 func determine_win_by_hits(endstate):
 	'''
-	If we have enough symbols the win is based on the total number shown than the lenght and number of lines
+	If we have enough symbols the win is based on the total number shown rather than the lenght and number of lines
 	'''
 	var winnings = 0
 	var info = ""
@@ -137,10 +154,41 @@ func highlight_by_hits(symbol:String, endstate, color:Color):
 	pass
 
 func determine_win_by_lines(endstate):
-	if endstate[0][1] == endstate[1][1]:
-		return 1
-	return 0
-	
+	'''
+	Handle winning on lines
+	'''
+	var info = ""
+	var winnings = 0
+	for l in range(play_lines):
+		var line = lines_5x3[l]
+		var symbol = endstate[0][line[0]]
+		var hits = check_line(symbol, line, endstate)
+		if hits >= 2:
+			winnings += hits
+			info += symbol + ": " + str(hits) + ", "
+			highlight_line(line, hits, highlight_colors[l])
+		
+	display_info(info)
+	return winnings
+
+func check_line(symbol, line, endstate):
+	'''
+	Get number of hits on the line
+	'''
+	var length = 0
+	for idx in range(len(line)):
+		if endstate[idx][line[idx]] == symbol:
+			length += 1
+		else:
+			break
+	return length
+
+func highlight_line(line, len, color):
+	for i in range(len(line)):
+		if i == len:
+			break
+		wheels[i].highlight(line[i]+1, color)
+	pass
 
 func display_balance():
 	get_node("BalanceDisplayText").set_text("Balance: " + str(balance))
