@@ -2,6 +2,8 @@ extends Node2D
 
 var wheels = []
 var positions = []
+var utility
+
 var highlight_colors = [
 	Color(1,0,0),
 	Color(0,1,0),
@@ -17,6 +19,9 @@ var lines_5x3 = [
 	[0,1,2,1,0],
 	[2,1,0,1,2],
 ]
+
+var linepays
+var hitpays
 
 var balance = 100
 var betting = 1
@@ -40,10 +45,11 @@ func _ready():
 		var wheel = wheels[i]
 		wheel.stop_delay = delay
 		delay += wheel_start_stop_delay
-#	tiles.append(get_node("Tile1"))
-#	tiles.append(get_node("Tile2"))
-#	tiles.append(get_node("Tile3"))
-#	tiles.append(get_node("Tile4"))
+	
+	linepays = get_node("PayoutTables").linepays
+	hitpays = get_node("PayoutTables").hitpays
+	utility = get_node("Utility")
+	
 	
 	display_bet()
 	display_balance()
@@ -167,13 +173,16 @@ func determine_win_by_lines(endstate):
 	Handle winning on lines
 	'''
 	var info = ""
-	var winnings = 0
+	var winnings = 0 as float
 	for l in range(play_lines):
 		var line = lines_5x3[l]
 		var symbol = endstate[0][line[0]]
 		var hits = check_line(symbol, line, endstate)
 		if hits >= 2:
-			winnings += hits
+			var base_win = linepays[symbol][hits-1]
+			var mult = (betting as float / play_lines as float)
+			winnings += base_win * mult
+			print("wins " + str(base_win) + " * " + str(mult) + " = " + str(base_win * mult))
 			info += symbol + ": " + str(hits) + ", "
 			highlight_line(line, hits, highlight_colors[l])
 		
@@ -233,15 +242,15 @@ func lines_down():
 	pass
 
 func display_balance():
-	get_node("BalanceDisplayText").set_text("Balance: " + str(balance))
+	get_node("BalanceDisplayText").set_text("Balance: " + utility.two_decimals(balance))
 	pass
 
 func display_win(value):
-	get_node("WinDisplayText").set_text("WON: " + str(value))
+	get_node("WinDisplayText").set_text("WON: " + utility.two_decimals(value))
 	pass
 
 func display_bet():
-	get_node("BetDisplay").get_node("BetDisplayText").set_text("Bet: " + str(betting))
+	get_node("BetDisplay").get_node("BetDisplayText").set_text("Bet: " + utility.two_decimals(betting))
 	pass
 	
 func display_lines():
