@@ -2,9 +2,14 @@ extends AnimatedSprite2D
 
 var time = 0
 
+# variables for display
 var border
 var am_supposed_to_be = 0
 var currently_am = 0
+var in_lines = []
+var current_line_idx = 0
+var line_border_timer = 0
+var line_border_show_time = 1
 
 # variables for rotating on the wheel
 var my_home = 0
@@ -29,6 +34,7 @@ var frames = {
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	border = get_node("TileBorder")
+	line_border_timer = line_border_show_time
 	pass # Replace with function body.
 
 
@@ -53,6 +59,15 @@ func _process(delta):
 	if moving:
 		move_towards_next_position(delta)
 	
+	
+	# show the border of lines we are currently in
+	if line_border_timer > -1:
+		line_border_timer -= delta
+	if len(in_lines) > 0 and line_border_timer <= 0:
+		line_border_timer = line_border_show_time
+		border.modulate = in_lines[current_line_idx]
+		border.visible = true
+		current_line_idx = (current_line_idx + 1) % len(in_lines)
 	pass
 
 
@@ -108,6 +123,8 @@ func move_towards_next_position(delta):
 	pass
 
 func spin(delay=0):
+	in_lines.clear()
+	current_line_idx = 0
 	stop = false
 	goto_next_position()
 	if delay > 0:
@@ -124,7 +141,11 @@ func stop_spinning(delay=0):
 		stop = true
 		
 	pass
-	
+
+func in_line(color:Color):
+	in_lines.append(color)
+	pass
+
 func choose_symbol():
 	'''
 	Choose which symbol to display in this sqare

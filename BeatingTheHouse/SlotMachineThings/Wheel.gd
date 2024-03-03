@@ -91,6 +91,5 @@ func stop_spin(delay=0):
 		
 func highlight(tile, color):
 	var t = tiles[tile]
-	t.border.modulate = color
-	t.border.visible = true
+	t.in_line(color)
 	pass

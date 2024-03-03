@@ -2,10 +2,17 @@ extends Node2D
 
 var wheels = []
 var positions = []
-var highlight_colors = [Color(1,0,0),Color(0,1,0),Color(0,0,1),Color(1,1,0),Color(1,0,1),Color(0,1,1),]
+var highlight_colors = [
+	Color(1,0,0),
+	Color(0,1,0),
+	Color(0,0,1),
+	Color(1,1,0),
+	Color(1,0,1),
+	Color(0,1,1),
+	]
 var lines_5x3 = [
-	[0,0,0,0,0],
 	[1,1,1,1,1],
+	[0,0,0,0,0],
 	[2,2,2,2,2],
 	[0,1,2,1,0],
 	[2,1,0,1,2],
@@ -40,6 +47,7 @@ func _ready():
 	
 	display_bet()
 	display_balance()
+	display_lines()
 	pass # Replace with function body.
 	
 
@@ -51,6 +59,7 @@ func _process(delta):
 		for wheel in wheels:
 			if wheel.spinning:	
 				finished = false
+				break
 		
 		if finished:
 			playing = false
@@ -190,6 +199,39 @@ func highlight_line(line, len, color):
 		wheels[i].highlight(line[i]+1, color)
 	pass
 
+func bet_up():
+	if betting >= 1:
+		betting += 1
+	elif betting >= 0.9:
+		betting = 1
+	else:
+		betting += 0.1
+	display_bet()
+	pass
+
+func bet_down():
+	if betting <= 0.1:
+		return
+		
+	if betting <= 1:
+		betting -= 0.1
+	else:
+		betting -= 1
+	display_bet()
+	pass
+	
+func lines_up():
+	if play_lines < len(lines_5x3):
+		play_lines += 1
+	display_lines()
+	pass
+	
+func lines_down():
+	if play_lines > 1:
+		play_lines -= 1
+	display_lines()
+	pass
+
 func display_balance():
 	get_node("BalanceDisplayText").set_text("Balance: " + str(balance))
 	pass
@@ -199,7 +241,11 @@ func display_win(value):
 	pass
 
 func display_bet():
-	get_node("BetDisplayText").set_text("Bet: " + str(betting))
+	get_node("BetDisplay").get_node("BetDisplayText").set_text("Bet: " + str(betting))
+	pass
+	
+func display_lines():
+	get_node("LinesDisplay").get_node("LinesDisplayText").set_text("Lines: " + str(play_lines))
 	pass
 	
 func display_info(message):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://b5hgw63uip2cg"]
+[gd_scene load_steps=21 format=3 uid="uid://b5hgw63uip2cg"]
 
 [ext_resource type="Texture2D" uid="uid://66oqs34wykp4" path="res://SlotMachineThings/SMBG.png" id="1_cyoxh"]
 [ext_resource type="Script" path="res://SlotMachineThings/Wheel.gd" id="1_pngbk"]
@@ -12,6 +12,12 @@
 [ext_resource type="Script" path="res://SlotMachineThings/SpinButton.gd" id="7_yt4c8"]
 [ext_resource type="Texture2D" uid="uid://bd0o6krij426l" path="res://SlotMachineThings/Art/Tilebg.png" id="8_mang3"]
 [ext_resource type="Texture2D" uid="uid://6cogfaqprt7l" path="res://SlotMachineThings/Art/TileBorder.png" id="10_jaau4"]
+[ext_resource type="Texture2D" uid="uid://ojtsg26hewx" path="res://SlotMachineThings/Art/Triangle.png" id="13_om05i"]
+[ext_resource type="Script" path="res://SlotMachineThings/BetDownButton.gd" id="14_l38px"]
+[ext_resource type="Script" path="res://SlotMachineThings/BetUpButton.gd" id="14_l47uy"]
+[ext_resource type="Script" path="res://SlotMachineThings/LinesUpButton.gd" id="15_1j3sc"]
+[ext_resource type="BitMap" uid="uid://u7flebwfrda3" path="res://SlotMachineThings/Art/TriangleMask.png" id="15_m11h5"]
+[ext_resource type="Script" path="res://SlotMachineThings/LinesDownButton.gd" id="16_ahmyh"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_aat5b"]
 animations = [{
@@ -412,15 +418,6 @@ scale = Vector2(0.745218, 0.791866)
 text = "WIN: 0"
 label_settings = SubResource("LabelSettings_2soyh")
 
-[node name="BetDisplayText" type="Label" parent="."]
-offset_left = 734.849
-offset_top = 603.03
-offset_right = 1225.85
-offset_bottom = 743.03
-scale = Vector2(0.745218, 0.791866)
-text = "Bet: 1"
-label_settings = SubResource("LabelSettings_2soyh")
-
 [node name="InfoDisplayText" type="Label" parent="."]
 offset_left = -38.0
 offset_top = 729.0
@@ -430,4 +427,103 @@ scale = Vector2(0.627331, 0.598061)
 text = "Info: Nothing reported
 
 "
+label_settings = SubResource("LabelSettings_2soyh")
+
+[node name="LinesDisplay" type="Node2D" parent="."]
+position = Vector2(22.7273, 95.4545)
+scale = Vector2(1, 1)
+
+[node name="LinesUpButton" type="TextureButton" parent="LinesDisplay"]
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 957.576
+offset_top = 586.364
+offset_right = 2877.58
+offset_bottom = 1666.36
+grow_horizontal = 0
+grow_vertical = 2
+rotation = 1.5708
+scale = Vector2(0.04, 0.042772)
+texture_normal = ExtResource("13_om05i")
+texture_click_mask = ExtResource("15_m11h5")
+script = ExtResource("15_1j3sc")
+
+[node name="LinesDownButton" type="TextureButton" parent="LinesDisplay"]
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 958.315
+offset_top = 605.078
+offset_right = 2878.32
+offset_bottom = 1685.08
+grow_horizontal = 0
+grow_vertical = 2
+rotation = 1.5708
+scale = Vector2(0.04, 0.042772)
+texture_normal = ExtResource("13_om05i")
+texture_click_mask = ExtResource("15_m11h5")
+flip_h = true
+script = ExtResource("16_ahmyh")
+
+[node name="LinesDisplayText" type="Label" parent="LinesDisplay"]
+offset_left = 734.849
+offset_top = 603.03
+offset_right = 1225.85
+offset_bottom = 743.03
+scale = Vector2(0.745218, 0.791866)
+text = "Lines: 1"
+label_settings = SubResource("LabelSettings_2soyh")
+
+[node name="BetDisplay" type="Node2D" parent="."]
+position = Vector2(22.7273, 10.6061)
+
+[node name="BetUpButton" type="TextureButton" parent="BetDisplay"]
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 959.091
+offset_top = 581.818
+offset_right = 2879.09
+offset_bottom = 1661.82
+grow_horizontal = 0
+grow_vertical = 2
+rotation = 1.5708
+scale = Vector2(0.04, 0.042772)
+texture_normal = ExtResource("13_om05i")
+texture_click_mask = ExtResource("15_m11h5")
+script = ExtResource("14_l47uy")
+
+[node name="BetDownButton" type="TextureButton" parent="BetDisplay"]
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 958.315
+offset_top = 600.532
+offset_right = 2878.32
+offset_bottom = 1680.53
+grow_horizontal = 0
+grow_vertical = 2
+rotation = 1.5708
+scale = Vector2(0.04, 0.042772)
+texture_normal = ExtResource("13_om05i")
+texture_click_mask = ExtResource("15_m11h5")
+flip_h = true
+script = ExtResource("14_l38px")
+
+[node name="BetDisplayText" type="Label" parent="BetDisplay"]
+offset_left = 734.849
+offset_top = 603.03
+offset_right = 1225.85
+offset_bottom = 743.03
+scale = Vector2(0.745218, 0.791866)
+text = "Bet: 1"
 label_settings = SubResource("LabelSettings_2soyh")
