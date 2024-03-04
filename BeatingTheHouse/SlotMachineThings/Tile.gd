@@ -22,13 +22,16 @@ var speed = 750
 var wait_to_move = 0
 var wait_to_stop = 0
 
-var symbols = ["10", "J", "Q", "K", "A"]
+var symbols = ["10", "J", "Q", "K", "A", "B1", "T1", "T2"]
 var frames = {
 	"10": 0,
 	"J": 1,
 	"Q": 2,
 	"K": 3,
 	"A": 4,
+	"B1": 5,
+	"T1": 6,
+	"T2": 7,
 }
 
 # Called when the node enters the scene tree for the first time.

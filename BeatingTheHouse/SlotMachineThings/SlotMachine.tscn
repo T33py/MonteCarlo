@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://b5hgw63uip2cg"]
+[gd_scene load_steps=28 format=3 uid="uid://b5hgw63uip2cg"]
 
 [ext_resource type="Texture2D" uid="uid://66oqs34wykp4" path="res://SlotMachineThings/SMBG.png" id="1_cyoxh"]
 [ext_resource type="Script" path="res://SlotMachineThings/Wheel.gd" id="1_pngbk"]
@@ -11,7 +11,10 @@
 [ext_resource type="Texture2D" uid="uid://b7uaiq1wha2e2" path="res://SlotMachineThings/Art/King.png" id="6_lt8u1"]
 [ext_resource type="Script" path="res://SlotMachineThings/SpinButton.gd" id="7_yt4c8"]
 [ext_resource type="Texture2D" uid="uid://bd0o6krij426l" path="res://SlotMachineThings/Art/Tilebg.png" id="8_mang3"]
+[ext_resource type="Texture2D" uid="uid://y31oeyrmuoqp" path="res://SlotMachineThings/Art/Coin.png" id="9_1rjt0"]
+[ext_resource type="Texture2D" uid="uid://bvcw5m6jpmc8i" path="res://SlotMachineThings/Art/Bonus.png" id="10_6qgag"]
 [ext_resource type="Texture2D" uid="uid://6cogfaqprt7l" path="res://SlotMachineThings/Art/TileBorder.png" id="10_jaau4"]
+[ext_resource type="Texture2D" uid="uid://hhhboouhgcm6" path="res://SlotMachineThings/Art/Dosh.png" id="11_ds13v"]
 [ext_resource type="Texture2D" uid="uid://ojtsg26hewx" path="res://SlotMachineThings/Art/Triangle.png" id="13_om05i"]
 [ext_resource type="Script" path="res://SlotMachineThings/BetDownButton.gd" id="14_l38px"]
 [ext_resource type="Script" path="res://SlotMachineThings/BetUpButton.gd" id="14_l47uy"]
@@ -20,6 +23,8 @@
 [ext_resource type="Script" path="res://SlotMachineThings/LinesDownButton.gd" id="16_ahmyh"]
 [ext_resource type="Script" path="res://SlotMachineThings/PayoutTables.gd" id="19_7kfsu"]
 [ext_resource type="Script" path="res://SlotMachineThings/Utility.gd" id="20_k86s0"]
+[ext_resource type="Texture2D" uid="uid://c55tm3b6wa35b" path="res://UIArt/Border.png" id="21_g62ig"]
+[ext_resource type="Texture2D" uid="uid://c5kqahf6bnrld" path="res://UIArt/Edge.png" id="22_i0q7k"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_aat5b"]
 animations = [{
@@ -38,6 +43,15 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": ExtResource("3_dipqw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_6qgag")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_1rjt0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_ds13v")
 }],
 "loop": false,
 "name": &"default",
@@ -433,7 +447,6 @@ label_settings = SubResource("LabelSettings_2soyh")
 
 [node name="LinesDisplay" type="Node2D" parent="."]
 position = Vector2(22.7273, 95.4545)
-scale = Vector2(1, 1)
 
 [node name="LinesUpButton" type="TextureButton" parent="LinesDisplay"]
 anchors_preset = 6
@@ -535,3 +548,15 @@ script = ExtResource("19_7kfsu")
 
 [node name="Utility" type="Node" parent="."]
 script = ExtResource("20_k86s0")
+
+[node name="Border" type="Sprite2D" parent="."]
+modulate = Color(0.482353, 0.270588, 0.0117647, 1)
+position = Vector2(-103.03, 630.303)
+scale = Vector2(0.158153, 0.0734142)
+texture = ExtResource("21_g62ig")
+
+[node name="Edge" type="Sprite2D" parent="Border"]
+position = Vector2(-346.467, 16.1113)
+rotation = 1.5708
+scale = Vector2(0.705453, 0.837013)
+texture = ExtResource("22_i0q7k")
