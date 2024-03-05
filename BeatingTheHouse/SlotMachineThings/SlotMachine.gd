@@ -46,6 +46,8 @@ func _ready():
 		wheel.stop_delay = delay
 		delay += wheel_start_stop_delay
 	
+	wheels[2].tiles[2].change_odds("S", 100)
+	
 	linepays = get_node("PayoutTables").linepays
 	hitpays = get_node("PayoutTables").hitpays
 	utility = get_node("Utility")
@@ -70,9 +72,8 @@ func _process(delta):
 		if finished:
 			playing = false
 			var won = determine_win()
-			balance += won
-			playing = false
 			display_win(won)
+			balance += won
 			display_balance()
 	
 	pass

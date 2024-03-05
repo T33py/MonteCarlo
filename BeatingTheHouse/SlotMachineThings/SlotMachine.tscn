@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://b5hgw63uip2cg"]
+[gd_scene load_steps=32 format=3 uid="uid://b5hgw63uip2cg"]
 
 [ext_resource type="Texture2D" uid="uid://66oqs34wykp4" path="res://SlotMachineThings/SMBG.png" id="1_cyoxh"]
 [ext_resource type="Script" path="res://SlotMachineThings/Wheel.gd" id="1_pngbk"]
@@ -15,10 +15,14 @@
 [ext_resource type="Texture2D" uid="uid://bvcw5m6jpmc8i" path="res://SlotMachineThings/Art/Bonus.png" id="10_6qgag"]
 [ext_resource type="Texture2D" uid="uid://6cogfaqprt7l" path="res://SlotMachineThings/Art/TileBorder.png" id="10_jaau4"]
 [ext_resource type="Texture2D" uid="uid://hhhboouhgcm6" path="res://SlotMachineThings/Art/Dosh.png" id="11_ds13v"]
+[ext_resource type="Texture2D" uid="uid://dhn61jql5wxkd" path="res://SlotMachineThings/Art/7.png" id="12_oodhr"]
+[ext_resource type="Texture2D" uid="uid://cn1ogyhck38wq" path="res://SlotMachineThings/Art/777.png" id="13_hqwxk"]
 [ext_resource type="Texture2D" uid="uid://ojtsg26hewx" path="res://SlotMachineThings/Art/Triangle.png" id="13_om05i"]
 [ext_resource type="Script" path="res://SlotMachineThings/BetDownButton.gd" id="14_l38px"]
 [ext_resource type="Script" path="res://SlotMachineThings/BetUpButton.gd" id="14_l47uy"]
+[ext_resource type="Texture2D" uid="uid://c6gdmfdfjq0yc" path="res://SlotMachineThings/Art/Diamond.png" id="14_ugcvu"]
 [ext_resource type="Script" path="res://SlotMachineThings/LinesUpButton.gd" id="15_1j3sc"]
+[ext_resource type="Texture2D" uid="uid://dgkwcy02r0m23" path="res://SlotMachineThings/Art/Skull.png" id="15_dx3ic"]
 [ext_resource type="BitMap" uid="uid://u7flebwfrda3" path="res://SlotMachineThings/Art/TriangleMask.png" id="15_m11h5"]
 [ext_resource type="Script" path="res://SlotMachineThings/LinesDownButton.gd" id="16_ahmyh"]
 [ext_resource type="Script" path="res://SlotMachineThings/PayoutTables.gd" id="19_7kfsu"]
@@ -52,9 +56,21 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": ExtResource("11_ds13v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_oodhr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_hqwxk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_ugcvu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_dx3ic")
 }],
 "loop": false,
-"name": &"default",
+"name": &"Tile",
 "speed": 2.0
 }]
 
@@ -82,6 +98,7 @@ texture = ExtResource("8_mang3")
 position = Vector2(154, -30)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel1/Tile0"]
@@ -93,6 +110,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 110)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel1/Tile1"]
@@ -104,6 +122,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 250)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel1/Tile2"]
@@ -115,6 +134,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 390)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel1/Tile3"]
@@ -126,6 +146,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 530)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel1/Tile4"]
@@ -149,6 +170,7 @@ texture = ExtResource("8_mang3")
 position = Vector2(154, -30)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel2/Tile0"]
@@ -160,6 +182,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 110)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel2/Tile1"]
@@ -171,6 +194,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 250)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel2/Tile2"]
@@ -182,6 +206,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 390)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel2/Tile3"]
@@ -193,6 +218,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 530)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel2/Tile4"]
@@ -216,6 +242,7 @@ texture = ExtResource("8_mang3")
 position = Vector2(154, -30)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel3/Tile0"]
@@ -227,6 +254,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 110)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel3/Tile1"]
@@ -238,6 +266,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 250)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel3/Tile2"]
@@ -249,6 +278,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 390)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel3/Tile3"]
@@ -260,6 +290,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 530)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel3/Tile4"]
@@ -283,6 +314,7 @@ texture = ExtResource("8_mang3")
 position = Vector2(154, -30)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel4/Tile0"]
@@ -294,6 +326,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 110)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel4/Tile1"]
@@ -305,6 +338,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 250)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel4/Tile2"]
@@ -316,6 +350,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 390)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel4/Tile3"]
@@ -327,6 +362,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 530)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel4/Tile4"]
@@ -350,6 +386,7 @@ texture = ExtResource("8_mang3")
 position = Vector2(154, -30)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel5/Tile0"]
@@ -361,6 +398,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 110)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel5/Tile1"]
@@ -372,6 +410,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 250)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel5/Tile2"]
@@ -383,6 +422,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 390)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel5/Tile3"]
@@ -394,6 +434,7 @@ texture = ExtResource("10_jaau4")
 position = Vector2(154, 530)
 scale = Vector2(0.123344, 0.133776)
 sprite_frames = SubResource("SpriteFrames_aat5b")
+animation = &"Tile"
 script = ExtResource("3_8h6d0")
 
 [node name="TileBorder" type="Sprite2D" parent="Wheel5/Tile4"]

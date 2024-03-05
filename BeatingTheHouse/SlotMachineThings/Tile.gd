@@ -1,11 +1,13 @@
 extends AnimatedSprite2D
 
 var time = 0
+var rand = RandomNumberGenerator.new()
 
 # variables for display
 var border
 var am_supposed_to_be = 0
-var currently_am = 0
+var currently_am = "7"
+var current_frame = 8
 var in_lines = []
 var current_line_idx = 0
 var line_border_timer = 0
@@ -22,31 +24,39 @@ var speed = 750
 var wait_to_move = 0
 var wait_to_stop = 0
 
-var symbols = ["10", "J", "Q", "K", "A", "B1", "T1", "T2"]
+var symbols = ["7", "10", "J", "Q", "K", "A", "777", "B1", "B2", "T1", "T2", "S"]
+var odds =    [100,  100, 100, 100, 100, 100,   100,  100,  100,  100,  100,   0]
+var sum_of_odds = 0
+
 var frames = {
+	"7": 8,
 	"10": 0,
 	"J": 1,
 	"Q": 2,
 	"K": 3,
 	"A": 4,
+	"777": 9,
 	"B1": 5,
+	"B2": 10,
 	"T1": 6,
 	"T2": 7,
+	"S": 11,
 }
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	border = get_node("TileBorder")
 	line_border_timer = line_border_show_time
+	sum_of_odds = sum(odds)
 	pass # Replace with function body.
 
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	if currently_am != am_supposed_to_be:
+	if current_frame != am_supposed_to_be:
 		frame = am_supposed_to_be
-		currently_am = am_supposed_to_be
+		current_frame = am_supposed_to_be
 	
 	# if we are waiting for something
 	if wait_to_stop > 0:
@@ -153,6 +163,31 @@ func choose_symbol():
 	'''
 	Choose which symbol to display in this sqare
 	'''
-	am_supposed_to_be = frames[symbols.pick_random()]
+	var num = rand.randi_range(0, sum_of_odds)
+	var choise
+	for i in range(len(odds)):
+		num -= odds[i]
+		if num <= 0 and odds[i] != 0:
+			choise = symbols[i]
+			break
+	
+	currently_am = choise
+	am_supposed_to_be = frames[currently_am]
 	pass
 	
+
+func change_odds(symbol, change):
+	'''
+	Change the odds of the provided symbol for this wheel
+	'''
+	var i = symbols.find(symbol)
+	odds[i] += change
+	sum_of_odds += change
+	print("Odss of " + symbol + " -> " + str(odds[i]))
+	pass
+
+func sum(list):
+	var s = 0
+	for n in list:
+		s += n
+	return s

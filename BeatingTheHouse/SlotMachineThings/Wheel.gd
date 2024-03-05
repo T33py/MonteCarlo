@@ -58,7 +58,7 @@ func get_result():
 	var outcome = []
 	for i in range(len(tiles)):
 		if i > 0 and i < len(tiles)-1:
-			outcome.append(tiles[i].symbols[tiles[i].currently_am])
+			outcome.append(tiles[i].currently_am)
 	return outcome
 
 func spin(delay = 0):
