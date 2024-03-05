@@ -164,12 +164,15 @@ func choose_symbol():
 	Choose which symbol to display in this sqare
 	'''
 	var num = rand.randi_range(0, sum_of_odds)
-	var choise
+	var choise = "None"
 	for i in range(len(odds)):
 		num -= odds[i]
 		if num <= 0 and odds[i] != 0:
 			choise = symbols[i]
 			break
+	
+	if choise == "None":
+		choise = symbols[len(symbols)-1]
 	
 	currently_am = choise
 	am_supposed_to_be = frames[currently_am]
