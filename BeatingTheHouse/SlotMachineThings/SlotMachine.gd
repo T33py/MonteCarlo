@@ -12,7 +12,7 @@ var highlight_colors = [
 	Color(1,0,1),
 	Color(0,1,1),
 	]
-var lines_5x3 = [
+var lines = [
 	[1,1,1,1,1],
 	[0,0,0,0,0],
 	[2,2,2,2,2],
@@ -25,6 +25,8 @@ var hitpays
 
 var balance = 100
 var betting = 1
+var freespins = 0
+var hits_to_win = 2
 var playing = false
 var games_played = 0
 var wheel_start_stop_delay = 0.15
@@ -47,6 +49,11 @@ func _ready():
 		delay += wheel_start_stop_delay
 	
 	wheels[2].tiles[2].change_odds("S", 100)
+	wheels[0].tiles[2].change_odds("B2", 25)
+	wheels[1].tiles[2].change_odds("B2", 25)
+	wheels[2].tiles[2].change_odds("B2", 25)
+	wheels[3].tiles[2].change_odds("B2", 25)
+	wheels[4].tiles[2].change_odds("B2", 25)
 	
 	linepays = get_node("PayoutTables").linepays
 	hitpays = get_node("PayoutTables").hitpays
@@ -124,9 +131,9 @@ func determine_win_by_hits(endstate):
 	for symbol in endstate[0]:
 		if (not symbol in won_on) and (symbol in endstate[1]) and (symbol in endstate[2]):
 			var count = count_symbol(symbol, endstate)
-			winnings += count
+			winnings += count * hitpays[symbol]
 			won_on.append(symbol)
-			info += symbol + ": " + str(count) + ", "
+			info += symbol + ": " + str(count) + " (" + str(winnings) + "), "
 			highlight_by_hits(symbol, endstate, highlight_colors.pick_random())
 			
 	display_info(info)
@@ -176,16 +183,25 @@ func determine_win_by_lines(endstate):
 	var info = ""
 	var winnings = 0 as float
 	for l in range(play_lines):
-		var line = lines_5x3[l]
+		var line = lines[l]
 		var symbol = endstate[0][line[0]]
-		var hits = check_line(symbol, line, endstate)
-		if hits >= 2:
-			var base_win = linepays[symbol][hits-1]
-			var mult = (betting as float / play_lines as float)
-			winnings += base_win * mult
-			print("wins " + str(base_win) + " * " + str(mult) + " = " + str(base_win * mult))
-			info += symbol + ": " + str(hits) + ", "
+		var line_result = check_line(symbol, line, endstate)
+		var hits = line_result[0]
+		winnings += line_result[1]
+		print("spin result: " + str(line_result))
+		if hits >= hits_to_win and symbol != "B2":
+			info += symbol + ": " + str(hits) + " (" + str(line_result[1]) + "), "
 			highlight_line(line, hits, highlight_colors[l])
+
+		# if the player hit the 1st BONUS
+		if line_result[2]:
+			info += str(hits) + " free spins won! "
+
+		# if the player hit the 2nd BONUS
+		if line_result[3]:
+			highlight_bonus(line, "B2")
+			info += "BONUS HIT! "
+			pass
 		
 	display_info(info)
 	return winnings
@@ -194,19 +210,66 @@ func check_line(symbol, line, endstate):
 	'''
 	Get number of hits on the line
 	'''
-	var length = 0
+	var hits = 0
+	var winnings = 0 
+	var can_be_b1 = symbol == "B1"
+	# normal line
 	for idx in range(len(line)):
 		if endstate[idx][line[idx]] == symbol:
-			length += 1
+			hits += 1
 		else:
 			break
-	return length
+	
+	# bonus line
+	var bonus1 = 0
+	var bonus2 = 0
+	var b1 = false
+	var b2 = false
+	for idx in range(len(line)):
+		if can_be_b1 and endstate[idx][line[idx]] == "B1":
+			bonus1 += 1
+		elif endstate[idx][line[idx]] == "B2":
+			bonus2 += 1
+			print("BONUS2")
+		pass
 
-func highlight_line(line, len, color):
+	if can_be_b1 and bonus1 > hits_to_win:
+		b1 = true
+	if bonus2 >= 3:
+		b2 = true
+	
+		
+	if b1 and can_be_b1:
+		freespins += hits
+		print("Won " + str(hits) + " free spins")
+	if b2:
+		winnings += linepays["B2"][hits-1]
+		print("Won " + str(winnings) + " on " + str(bonus2) + " BONUS2's")
+	if hits >= 2 and symbol != "B2":
+		var base_win = linepays[symbol][hits-1]
+		var mult = (betting as float / play_lines as float)
+		winnings += base_win * mult
+		print("wins " + str(base_win) + " * " + str(mult) + " = " + str(base_win * mult))
+	
+	return [hits, winnings, b1, b2]
+
+func highlight_line(line, length, color):
 	for i in range(len(line)):
-		if i == len:
+		if i == length:
 			break
 		wheels[i].highlight(line[i]+1, color)
+	pass
+
+func highlight_bonus(line, symbol):
+	for i in range(len(line)):
+		var t = wheels[i].tiles[line[i]+1]
+		print(t.currently_am)
+		if t.currently_am == symbol:
+			for c in highlight_colors:
+				wheels[i].highlight(line[i]+1, c)
+			
+			
+		
 	pass
 
 func bet_up():
@@ -231,7 +294,7 @@ func bet_down():
 	pass
 	
 func lines_up():
-	if play_lines < len(lines_5x3):
+	if play_lines < len(lines):
 		play_lines += 1
 	display_lines()
 	pass

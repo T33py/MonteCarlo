@@ -24,8 +24,9 @@ var speed = 750
 var wait_to_move = 0
 var wait_to_stop = 0
 
+# Name your symbols anything but "" its the no symbol selected value
 var symbols = ["7", "10", "J", "Q", "K", "A", "777", "B1", "B2", "T1", "T2", "S"]
-var odds =    [100,  100, 100, 100, 100, 100,   100,  100,  100,  100,  100,   0]
+var odds =    [100,  100, 100, 100, 100, 100,   100,  50,     0,  100,  100,   0]
 var sum_of_odds = 0
 
 var frames = {
@@ -164,14 +165,14 @@ func choose_symbol():
 	Choose which symbol to display in this sqare
 	'''
 	var num = rand.randi_range(0, sum_of_odds)
-	var choise = "None"
+	var choise = ""
 	for i in range(len(odds)):
 		num -= odds[i]
 		if num <= 0 and odds[i] != 0:
 			choise = symbols[i]
 			break
 	
-	if choise == "None":
+	if choise == "":
 		choise = symbols[len(symbols)-1]
 	
 	currently_am = choise
