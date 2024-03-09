@@ -475,6 +475,15 @@ scale = Vector2(0.745218, 0.791866)
 text = "WIN: 0"
 label_settings = SubResource("LabelSettings_2soyh")
 
+[node name="FreeSpinDisplayText" type="Label" parent="."]
+offset_left = 316.667
+offset_top = 662.121
+offset_right = 630.667
+offset_bottom = 802.121
+scale = Vector2(0.745218, 0.791866)
+text = "Free Spins: 0"
+label_settings = SubResource("LabelSettings_2soyh")
+
 [node name="InfoDisplayText" type="Label" parent="."]
 offset_left = -38.0
 offset_top = 729.0

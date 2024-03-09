@@ -26,7 +26,7 @@ var wait_to_stop = 0
 
 # Name your symbols anything but "" its the no symbol selected value
 var symbols = ["7", "10", "J", "Q", "K", "A", "777", "B1", "B2", "T1", "T2", "S"]
-var odds =    [100,  100, 100, 100, 100, 100,   100,  50,     0,  100,  100,   0]
+var odds =    [125,  125, 150, 150, 125, 125,   100,  100,   50,  100,  100,   0]
 var sum_of_odds = 0
 
 var frames = {

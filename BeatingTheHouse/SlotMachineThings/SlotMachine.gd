@@ -5,26 +5,25 @@ var positions = []
 var utility
 
 var highlight_colors = [
-	Color(1,0,0),
-	Color(0,1,0),
-	Color(0,0,1),
-	Color(1,1,0),
-	Color(1,0,1),
-	Color(0,1,1),
+	Color(1,0,0), Color(0.5,0,0),
+	Color(0,1,0), Color(0,0.5,0),
+	Color(0,0,1), Color(0,0,0.5),
+	Color(1,1,0), Color(0.5,0.5,0),
+	Color(1,0,1), Color(0.5,0,0.5),
+	Color(0,1,1), Color(0,0.5,0.5),
+	Color(0,0,0),
 	]
 var lines = [
-	[1,1,1,1,1],
-	[0,0,0,0,0],
-	[2,2,2,2,2],
-	[0,1,2,1,0],
-	[2,1,0,1,2],
+	[1,1,1,1,1], [0,0,0,0,0], [2,2,2,2,2], [0,1,2,1,0], [2,1,0,1,2],
+	[1,2,1,2,1], [0,1,0,1,0], [2,1,2,1,2],
+	[1,0,1,0,1], [0,2,0,2,0], [2,0,2,0,2]
 ]
 
 var linepays
 var hitpays
 
 var balance = 100
-var betting = 1
+var betting = 10
 var freespins = 0
 var hits_to_win = 2
 var playing = false
@@ -32,7 +31,7 @@ var games_played = 0
 var wheel_start_stop_delay = 0.15
 
 var playing_lines = true
-var play_lines = 5
+var play_lines = 11
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -49,11 +48,11 @@ func _ready():
 		delay += wheel_start_stop_delay
 	
 	wheels[2].tiles[2].change_odds("S", 100)
-	wheels[0].tiles[2].change_odds("B2", 25)
-	wheels[1].tiles[2].change_odds("B2", 25)
-	wheels[2].tiles[2].change_odds("B2", 25)
-	wheels[3].tiles[2].change_odds("B2", 25)
-	wheels[4].tiles[2].change_odds("B2", 25)
+#	wheels[0].tiles[2].change_odds("B2", 25)
+#	wheels[1].tiles[2].change_odds("B2", 25)
+#	wheels[2].tiles[2].change_odds("B2", 25)
+#	wheels[3].tiles[2].change_odds("B2", 25)
+#	wheels[4].tiles[2].change_odds("B2", 25)
 	
 	linepays = get_node("PayoutTables").linepays
 	hitpays = get_node("PayoutTables").hitpays
@@ -97,8 +96,13 @@ func play():
 	
 	games_played += 1
 	print("Game" + str(games_played))
-	balance -= betting
-	display_balance()
+	
+	if freespins > 0:
+		freespins -= 1
+		display_free_spins()
+	else:
+		balance -= betting
+		display_balance()
 	
 	var delay = 0
 	for w in wheels:
@@ -133,7 +137,7 @@ func determine_win_by_hits(endstate):
 			var count = count_symbol(symbol, endstate)
 			winnings += count * hitpays[symbol]
 			won_on.append(symbol)
-			info += symbol + ": " + str(count) + " (" + str(winnings) + "), "
+			info += symbol + ": " + str(count) + " (" + utility.two_decimals(winnings) + "), "
 			highlight_by_hits(symbol, endstate, highlight_colors.pick_random())
 			
 	display_info(info)
@@ -190,12 +194,12 @@ func determine_win_by_lines(endstate):
 		winnings += line_result[1]
 		print("spin result: " + str(line_result))
 		if hits >= hits_to_win and symbol != "B2":
-			info += symbol + ": " + str(hits) + " (" + str(line_result[1]) + "), "
-			highlight_line(line, hits, highlight_colors[l])
+			info += symbol + ": " + str(hits) + " (" + utility.two_decimals(line_result[1]) + "), "
+			highlight_line(line, hits, highlight_colors[l % len(highlight_colors)])
 
 		# if the player hit the 1st BONUS
 		if line_result[2]:
-			info += str(hits) + " free spins won! "
+			info += str(line_result[4]) + " free spins won! "
 
 		# if the player hit the 2nd BONUS
 		if line_result[3]:
@@ -210,6 +214,7 @@ func check_line(symbol, line, endstate):
 	'''
 	Get number of hits on the line
 	'''
+	print("Line" + str(line))
 	var hits = 0
 	var winnings = 0 
 	var can_be_b1 = symbol == "B1"
@@ -222,36 +227,44 @@ func check_line(symbol, line, endstate):
 	
 	# bonus line
 	var bonus1 = 0
+	var won_freespins = 0
 	var bonus2 = 0
 	var b1 = false
 	var b2 = false
 	for idx in range(len(line)):
-		if can_be_b1 and endstate[idx][line[idx]] == "B1":
-			bonus1 += 1
-		elif endstate[idx][line[idx]] == "B2":
+		if endstate[idx][line[idx]] == "B2":
 			bonus2 += 1
 			print("BONUS2")
 		pass
 
-	if can_be_b1 and bonus1 > hits_to_win:
-		b1 = true
 	if bonus2 >= 3:
 		b2 = true
 	
-		
-	if b1 and can_be_b1:
-		freespins += hits
-		print("Won " + str(hits) + " free spins")
+	
+	if can_be_b1:
+		if hits == 2:
+			won_freespins = 2
+		elif hits == 3:
+			won_freespins = 5
+		elif hits == 4:
+			won_freespins = 10
+		elif hits == 5:
+			won_freespins = 15
+		freespins += won_freespins
+		display_free_spins()
+		if won_freespins > 0:
+			print("Won " + str(won_freespins) + " free spins")
+			b1 = true
 	if b2:
-		winnings += linepays["B2"][hits-1]
+		winnings += linepays["B2"][bonus2-1]
 		print("Won " + str(winnings) + " on " + str(bonus2) + " BONUS2's")
-	if hits >= 2 and symbol != "B2":
+	if hits >= hits_to_win and symbol != "B2":
 		var base_win = linepays[symbol][hits-1]
 		var mult = (betting as float / play_lines as float)
 		winnings += base_win * mult
 		print("wins " + str(base_win) + " * " + str(mult) + " = " + str(base_win * mult))
 	
-	return [hits, winnings, b1, b2]
+	return [hits, winnings, b1, b2, won_freespins]
 
 func highlight_line(line, length, color):
 	for i in range(len(line)):
@@ -263,7 +276,7 @@ func highlight_line(line, length, color):
 func highlight_bonus(line, symbol):
 	for i in range(len(line)):
 		var t = wheels[i].tiles[line[i]+1]
-		print(t.currently_am)
+#		print(t.currently_am)
 		if t.currently_am == symbol:
 			for c in highlight_colors:
 				wheels[i].highlight(line[i]+1, c)
@@ -273,6 +286,11 @@ func highlight_bonus(line, symbol):
 	pass
 
 func bet_up():
+	
+	if freespins > 0:
+		display_info("Cant change betsize while playing freespins")
+		return
+	
 	if betting >= 1:
 		betting += 1
 	elif betting >= 0.9:
@@ -283,6 +301,10 @@ func bet_up():
 	pass
 
 func bet_down():
+	
+	if freespins > 0:
+		display_info("Cant change betsize while playing freespins")
+		
 	if betting <= 0.1:
 		return
 		
@@ -311,6 +333,10 @@ func display_balance():
 
 func display_win(value):
 	get_node("WinDisplayText").set_text("WON: " + utility.two_decimals(value))
+	pass
+
+func display_free_spins():
+	get_node("FreeSpinDisplayText").set_text("Free Spins: " + str(freespins))
 	pass
 
 func display_bet():
