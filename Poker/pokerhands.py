@@ -1,6 +1,6 @@
 from Poker.card import suit_names, card_values, Card, cards
 import random
-players = 1
+players = 10
 iterations = 10000000
 
 def main():
@@ -65,13 +65,13 @@ def identify_hand(hand, common_cards):
     has_ace = False
     for val in vals_sort:
         # do the thing
+        straight_cards.append(values_cards[val][0])
         if val - lst < 0 or val - lst > 1:
             straight = 1
             if not is_straight:
                 straight_cards = [values_cards[val][0]]
         elif val - lst == 1:
             straight += 1
-            straight_cards.append(values_cards[val][0])
         lst = val
         
         # fix the edgecases
@@ -85,7 +85,7 @@ def identify_hand(hand, common_cards):
             is_straight = True
 
         if len(straight_cards) > 5:
-            if straight < len(straight_cards):
+            if straight < len(straight_cards): # this is only true when the current card is higher than, but not part of, the straight we found
                 straight_cards.pop(len(straight_cards)-1)
             else:
                 straight_cards.pop(0) 
@@ -97,38 +97,104 @@ def identify_hand(hand, common_cards):
             is_flush = True
             flush_cards = suits_cards[suit]
     
+    flush_cards = sorted(flush_cards, key=lambda c: c.value)
     while len(flush_cards) > 5:
         flush_cards.pop(0)
 
+    cards_that_is_in_hand = []
+
+    pairs_cards = sorted(pairs_cards, key=lambda p: p[0].value)
     if pairs == 1:
         hand_is = "pair"
-    elif pairs > 1:
+        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        cards_that_is_in_hand = pairs_cards[0]
+    elif pairs >= 2:
         hand_is = "two_pair"
-    
+        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        while len(pairs_cards) > 2:
+            pairs_cards.pop(0)
+        for pair in pairs_cards:
+            for card in pair:
+                cards_that_is_in_hand.append(card)
+        
+    threes_cards = sorted(threes_cards, key=lambda p: p[0].value)
     if threes > 0:
         hand_is = "three_of_a_kind"
+        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        cards_that_is_in_hand = []
+        if len(threes_cards) == 1:
+            cards_that_is_in_hand = threes_cards[0]
+        elif threes_cards[0][0].value > threes_cards[1][0].value:
+            cards_that_is_in_hand = threes_cards[0]
+        else:
+            cards_that_is_in_hand = threes_cards[1]
+            
     
     if is_straight:
         hand_is = "straight"
+        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        cards_that_is_in_hand = []
+        cards_that_is_in_hand = straight_cards
 
     if is_flush:
         hand_is = "flush"
+        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        cards_that_is_in_hand = []
+        cards_that_is_in_hand = flush_cards
     
 
     if (threes > 0 and pairs > 0) or threes == 2:
         hand_is = "house"
+        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        cards_that_is_in_hand = []
+        pair = []
+        three = []
+        if pairs > 0:
+            pair = pairs_cards[len(pairs_cards)-1]
+            three = threes_cards[0]
+        else:
+            three = threes_cards[1]
+            pair.append(threes_cards[0][0])
+            pair.append(threes_cards[0][1])
+        cards_that_is_in_hand.append(pair[0])
+        cards_that_is_in_hand.append(pair[1])
+        cards_that_is_in_hand.append(three[0])
+        cards_that_is_in_hand.append(three[1])
+        cards_that_is_in_hand.append(three[2])
 
     if fours > 0:
         hand_is = "four_of_a_kind"
+        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        cards_that_is_in_hand = []
+        cards_that_is_in_hand = fours_cards[0]
     
     if is_straight and is_flush:
-        hand_is = "straight_flush"
-        # TODO: replace cards in the straight_cards list with the ones that has correct suit
+        suit = flush_cards[0].suit
+        found_replacements = True
+        for i in range(len(straight_cards)):
+            replaced = True
+            card: Card = straight_cards[i]
+            if card.suit != suit:
+                replaced = False
+                for c in values_cards[card.value]:
+                    if c.suit == suit:
+                        straight_cards[i] = c
+                        replaced = True
+            if not replaced:
+                found_replacements = False
+
+        if found_replacements:
+            hand_is = "straight_flush"
+            print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+            cards_that_is_in_hand = []
+            cards_that_is_in_hand = straight_cards
+
 
     if is_royal and is_straight and is_flush:
         hand_is = "royal_straight_flush"
+        # should be the straight flush from "straight flush check"
 
-    return hand_is
+    return [hand_is, cards_that_is_in_hand]
 
 def add_cards_to_dicts(cards, values, values_cards, suits, suits_cards):
     for c in cards:
