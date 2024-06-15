@@ -106,11 +106,11 @@ def identify_hand(hand, common_cards):
     pairs_cards = sorted(pairs_cards, key=lambda p: p[0].value)
     if pairs == 1:
         hand_is = "pair"
-        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        # print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
         cards_that_is_in_hand = pairs_cards[0]
     elif pairs >= 2:
         hand_is = "two_pair"
-        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        # print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
         while len(pairs_cards) > 2:
             pairs_cards.pop(0)
         for pair in pairs_cards:
@@ -120,7 +120,7 @@ def identify_hand(hand, common_cards):
     threes_cards = sorted(threes_cards, key=lambda p: p[0].value)
     if threes > 0:
         hand_is = "three_of_a_kind"
-        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        # print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
         cards_that_is_in_hand = []
         if len(threes_cards) == 1:
             cards_that_is_in_hand = threes_cards[0]
@@ -132,20 +132,20 @@ def identify_hand(hand, common_cards):
     
     if is_straight:
         hand_is = "straight"
-        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        # print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
         cards_that_is_in_hand = []
         cards_that_is_in_hand = straight_cards
 
     if is_flush:
         hand_is = "flush"
-        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        # print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
         cards_that_is_in_hand = []
         cards_that_is_in_hand = flush_cards
     
 
     if (threes > 0 and pairs > 0) or threes == 2:
         hand_is = "house"
-        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        # print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
         cards_that_is_in_hand = []
         pair = []
         three = []
@@ -164,7 +164,7 @@ def identify_hand(hand, common_cards):
 
     if fours > 0:
         hand_is = "four_of_a_kind"
-        print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+        # print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
         cards_that_is_in_hand = []
         cards_that_is_in_hand = fours_cards[0]
     
@@ -185,7 +185,7 @@ def identify_hand(hand, common_cards):
 
         if found_replacements:
             hand_is = "straight_flush"
-            print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
+            # print(f"{hand_is}: {hand} {common_cards} | {values_cards}, {suits_cards}")
             cards_that_is_in_hand = []
             cards_that_is_in_hand = straight_cards
 
