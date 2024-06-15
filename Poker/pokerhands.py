@@ -74,11 +74,12 @@ def identify_hand(hand, common_cards):
             straight_cards.append(values_cards[val][0])
         lst = val
         
-        #fix the edgecases
+        # fix the edgecases
         if val == 1: # if val is ace do something to fix for king
             has_ace = True
         if val == 13 and has_ace: # if there is an ace and the current card is a king - the ace should count in the straight
             straight += 1
+            straight_cards.append(values_cards[1][0])
             is_royal = True
         if straight >= 5:
             is_straight = True
