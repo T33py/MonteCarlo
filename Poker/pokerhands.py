@@ -48,13 +48,13 @@ def identify_hand(hand, common_cards):
     for value in values:
         if values[value] == 2:
             pairs += 1
-            pairs_cards.append(values_cards[values])
+            pairs_cards.append(values_cards[value])
         elif values[value] == 3:
             threes += 1
-            threes_cards.append(values_cards[values])
+            threes_cards.append(values_cards[value])
         elif values[value] == 4:
             fours += 1
-            fours_cards.append(values_cards[values])
+            fours_cards.append(values_cards[value])
     
     is_straight = False
     is_royal = False
@@ -71,7 +71,7 @@ def identify_hand(hand, common_cards):
                 straight_cards = [values_cards[val][0]]
         elif val - lst == 1:
             straight += 1
-            straight_cards.append(values_cards[values][0])
+            straight_cards.append(values_cards[val][0])
         lst = val
         
         #fix the edgecases
