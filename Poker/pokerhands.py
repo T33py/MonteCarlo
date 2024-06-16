@@ -30,7 +30,6 @@ def identify_hands(hands):
     Takes in a list of the hands to identify based on the common cards that should be placed as the first item in the list. [[*common_cards*], [*hand1*], [*hand2*], etc.]
     Returns a list of resulting hands with 2 items ["name of hand", [*cards that make up the strongest poker hand*]] for each hand
     '''
-    print(hands)
     result = []
     for hand in hands[1:]:
         result.append(identify_hand(hand, hands[0]))
