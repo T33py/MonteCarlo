@@ -1,32 +1,32 @@
-full_decksize = 52
-full_clubs = 13
-full_hearts = 13
-full_diamonds = 13
-full_spades = 13
-decksize = full_decksize
-clubs = full_clubs
-hearts = full_hearts
-diamonds = full_diamonds
-spades = full_spades
-card1 = []
-card2 = []
+import Poker.pokerhands as pokerhands
+import Poker.card as card
+players = 5
+iterations = 1000000
+
 
 def main():
-    reset()
+    deck = pokerhands.make_deck()
+    pokerhands.shuffle(deck)
+    hands = [[]]
+    for player in range(players):
+        hands.append([])
+
+    for i in range(iterations):
+        pokerhands.deal(hands, deck)
+        results = pokerhands.identify_hands(hands)
+        print("------")
+        print(hands)
+        print(results)
+        print("------")
+        pokerhands.empty_hands(hands, deck)
+        pokerhands.shuffle(deck)
+        input()
     
     return
 
-
-def reset():
-    decksize = full_decksize
-    clubs = full_clubs
-    hearts = full_hearts
-    diamonds = full_diamonds
-    spades = full_spades
-    card1.clear()
-    card2.clear()
+def find_strongest_hand(hands):
+    hands_by_hand_strength = sorted(hands, key=lambda r: pokerhands.hand_names_by_relative_strength.index(r[0]), reverse=True)
     return
-
 
 if __name__ == '__main__':
     main()

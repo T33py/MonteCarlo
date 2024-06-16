@@ -11,6 +11,7 @@ class Card:
         self.name = ''
         self.value = 0
         self.suit = ''
+        self.relative_strength = 0
 
     def assign_random(self):
         self.name = cards[random.randint(0, len(cards)-1)]
