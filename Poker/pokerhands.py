@@ -251,7 +251,12 @@ def add_cards_to_dicts(cards, values, values_cards, suits, suits_cards):
             suits[ca.suit] = 1
             suits_cards[ca.suit] = [ca]
     return
+
 def deal(hands, deck):
+    '''
+    Deal cards from the deck to the hands according to texas holdem rules.
+    hands[0] is treated as the common cards.
+    '''
     for c in range(2):
         for h in range(1, len(hands)):
             hands[h].append(draw(deck))
@@ -261,18 +266,27 @@ def deal(hands, deck):
     return
 
 def empty_hands(hands:list, deck:list):
+    '''
+    Move all cards from the hands to the deck.
+    '''
     for hand in hands:
         for card in hand:
             deck.append(card)
         hand.clear()
     return
 
-def draw(deck:list):
+def draw(deck:list)-> Card:
+    '''
+    Draw the top card from the deck
+    '''
     card = deck[0]
     deck.remove(card)
     return card
 
 def shuffle(deck:list):
+    '''
+    Randomize the order of the cards in the deck
+    '''
     shuffled = []
     while len(deck) > 0:
         idx = random.randint(0, len(deck)-1)
@@ -284,7 +298,10 @@ def shuffle(deck:list):
         deck.append(c)
     return
 
-def make_deck():
+def make_deck()->list[Card]:
+    '''
+    Setup a default 52 card poker deck
+    '''
     deck = []
     for suit in suit_names:
         for name in cards:
