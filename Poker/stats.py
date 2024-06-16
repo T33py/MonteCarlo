@@ -20,7 +20,7 @@ def main():
         print(results)
         print(winners)
         _winners = [hands[results.index(winner)+1] for winner in winners]
-        print(f'winner: {_winners}')
+        print(f'winner: {winners[0][0]} {_winners}')
         print("------")
         poker.empty_hands(hands, deck)
         poker.shuffle(deck)
@@ -55,7 +55,7 @@ def find_winners(hands):
         winning_hands.append(candidates)
 
     # pair / two pair
-    if winning_hand_name == poker.hand_names_by_relative_strength[1] or winning_hand_name == poker.hand_names_by_relative_strength[2]:
+    elif winning_hand_name == poker.hand_names_by_relative_strength[1] or winning_hand_name == poker.hand_names_by_relative_strength[2]:
         pairs = [find_pairs(hand[1]) for hand in candidates]
         # a pair is [[*pairs*], [*kickers*]] represented by their size
         best_pair = pairs[0]
@@ -70,7 +70,7 @@ def find_winners(hands):
                 winning_hands.append(candidates[i])
 
     # 3 of a kind
-    if winning_hand_name == poker.hand_names_by_relative_strength[3]:
+    elif winning_hand_name == poker.hand_names_by_relative_strength[3]:
         best3 = candidates[0]
         best3_val = find_3_of(best3[1])
         for i in range(len(candidates)):
@@ -86,7 +86,7 @@ def find_winners(hands):
 
 
     # straight
-    if winning_hand_name == poker.hand_names_by_relative_strength[4]:
+    elif winning_hand_name == poker.hand_names_by_relative_strength[4]:
         # cards are ordered by relative strength - so any straight that is bigger should have a larger card in the middle.
         # because As have relative strength 14 first and last card breaks if there is an ace.
         sorted_straights = sorted(candidates, key=lambda c: c[1][2].relative_strength, reverse=True)
@@ -96,9 +96,9 @@ def find_winners(hands):
                 winning_hands.append(straight)
 
     # flush
-    if winning_hand_name == poker.hand_names_by_relative_strength[5]:
+    elif winning_hand_name == poker.hand_names_by_relative_strength[5]:
         # high card wins
-        # cards are sorted, so we just choose the ones with the biggest number
+        # cards are sorted, so we just choose the ones with the biggest numbers
         for i in range(len(candidates[0][1])):
             cs_to_discard = []
             vals = [c[1][i].relative_strength for c in candidates]
@@ -112,14 +112,75 @@ def find_winners(hands):
 
 
     # house
+    elif winning_hand_name == poker.hand_names_by_relative_strength[6]:
+        # as there are 5 cards it's a pair an a 3, so we organize them [[*pair*], [*3*]]
+        threes = [find_3_of(house[1]) for house in candidates]
+        max3 = max(threes)
+        to_remove = []
+        for i in range(len(candidates)):
+            if threes[i] != max3:
+                to_remove.append(i)
+
+        print(f'  {to_remove}')
+        to_remove.reverse() # reverse to remove from the back
+        for idx in to_remove:
+            candidates.pop(idx)
+        to_remove.clear()
+
+        if len(candidates) > 1:
+            print(candidates)
+            # if there are more than 1 we need to find the pairs
+            pairs = [find_card_that_does_not_have_value(house[1], max3) for house in candidates]
+            max_pair = max(pairs)
+            for i in range(len(candidates)):
+                if pairs[i] != max_pair:
+                    to_remove.append(i)
+            to_remove.reverse() # reverse to remove from the back
+            for idx in to_remove:
+                candidates.pop(idx)
+                
+        winning_hands.extend(candidates)
 
     # 4 of a kind
+    elif winning_hand_name == poker.hand_names_by_relative_strength[7]:
+        # there will only be 1 kind with more than 1 so pairs will return [[*4*], [*kicker*]]
+        fours = [find_pairs(hand[1]) for hand in candidates]
+        pairs = [four[0][0] for four in fours]
+        max4 = max(pairs)
+        for i in range(len(candidates)):
+            if pairs[i] != max4:
+                candidates.pop(i)
+                pairs.pop(i)
+
+        if len(candidates) > 1:
+            kickers = [four[1][0] for four in fours]
+            max_kicker = max(kickers)
+            for i in range(len(candidates)):
+                if kickers[i] != max_kicker:
+                    candidates.pop(i)
+                    pairs.pop(i)
+                    kickers.pop(i)
+        winning_hands.extend(candidates)
 
     # straight flush
-
     # royal straight flush
+    elif winning_hand_name == poker.hand_names_by_relative_strength[8] or winning_hand_name == poker.hand_names_by_relative_strength[9]:
+        # biggest straight wins - royal straight flush is the biggest straight flush
+        sorted_straights = sorted(candidates, key=lambda c: c[1][2].relative_strength, reverse=True)
+        biggest_mid = sorted_straights[0][1][2].relative_strength 
+        for straight in sorted_straights:
+            if straight[1][2].relative_strength == biggest_mid:
+                winning_hands.append(straight)
             
     return winning_hands
+
+def find_card_that_does_not_have_value(hand, value):
+    val = 0
+    for c in hand:
+        if c.relative_strength != value:
+            val = c.relative_strength
+            break
+    return val
 
 def find_3_of(hand)-> int:
     '''
