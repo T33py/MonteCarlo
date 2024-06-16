@@ -50,7 +50,6 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
     hand_is = hand_names_by_relative_strength[0]
     
     # # of a kind
-    print('# of a kind')
     pairs = 0
     pairs_cards = []
     threes = 0
@@ -68,7 +67,6 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
             fours += 1
             fours_cards.append(values_cards[value])
     
-    print('straight?')
     is_straight = False
     is_royal = False
     vals_sort = sorted(values)
@@ -103,7 +101,6 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
             else:
                 straight_cards.pop(0) 
 
-    print('flush?')
     is_flush = False
     flush_cards = []
     for suit in suits:
@@ -187,21 +184,15 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
         cards_that_is_in_hand = fours_cards[0]
     
     if is_straight and is_flush:
-        print(values_cards)
-        print(straight_cards)
-        print(flush_cards)
         suit = flush_cards[0].suit
         found_replacements = True
         for i in range(len(straight_cards)):
             replaced = True
             card: Card = straight_cards[i]
             if card.suit != suit:
-                print(f'{card} is not flush with {suit}')
-                print(f'  replacement options: {values_cards[card.value]}')
                 replaced = False
                 for c in values_cards[card.value]:
                     if c.suit == suit:
-                        print(f'  {card} replaced with {c}')
                         straight_cards[i] = c
                         replaced = True
             if not replaced:
