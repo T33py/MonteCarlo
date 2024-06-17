@@ -4,7 +4,7 @@ import random
 hand_names_by_relative_strength = ["high_card", "pair", "two_pair", "three_of_a_kind", "straight", "flush", "house", "four_of_a_kind", "straight_flush", "royal_straight_flush"]
 
 players = 5
-iterations = 10000000
+iterations = 100
 def main():
     deck = make_deck()
     shuffle(deck)
@@ -15,9 +15,13 @@ def main():
     for i in range(iterations):
         deal(hands, deck)
         results = identify_hands(hands)
+        winners = find_winners(results)
+        _winners = [hands[results.index(winner)+1] for winner in winners]
         print("------")
         print(hands)
         print(results)
+        print(winners)
+        print(f'got {winners[0][0]}: {_winners}')
         print("------")
         empty_hands(hands, deck)
         shuffle(deck)
@@ -37,7 +41,7 @@ def identify_hands(hands):
 
 def identify_hand(hand: list[Card], common_cards: list[Card]):
     '''
-    Takes in a list of cards in the players hand, and a list of common cards
+    Takes in a list of cards in the players hand, and a list of common cards (assumed to be 5 long).
     Returns a list with 2 items ["name of hand", [*cards that make up the strongest poker hand*]]
     '''
     values = {}
@@ -227,7 +231,7 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
 
 def find_winners(hands):
     '''
-    compile a list of the winning hands
+    compile a list of the winning hands from the output of identify hands. If there are multiple winners their hands have the same strength.
     '''
     hands_by_hand_strength = sorted(hands, key=lambda r: hand_names_by_relative_strength.index(r[0]), reverse=True)
     winning_hand_name = hands_by_hand_strength[0][0]
@@ -243,13 +247,9 @@ def find_winners(hands):
     if winning_hand_name == hand_names_by_relative_strength[0]:
         # high card wins
         # cards are sorted, so we just choose the ones with the biggest number
-        for i in range(len(candidates[0][1])):
-            vals = [c[1][i].relative_strength for c in candidates]
-            m = max(vals)
-            for c in range(len(vals)):
-                if vals[c] < m:
-                    candidates.pop(c)
-        winning_hands.append(candidates)
+        for i in range(5):
+            remove_if_not_best_kicker(candidates, i)
+        winning_hands.extend(candidates)
 
     # pair / two pair
     elif winning_hand_name == hand_names_by_relative_strength[1] or winning_hand_name == hand_names_by_relative_strength[2]:
@@ -265,6 +265,12 @@ def find_winners(hands):
                 best_pair = pair
             if cmp == 0:
                 winning_hands.append(candidates[i])
+        
+        if winning_hand_name == hand_names_by_relative_strength[1]:
+            for i in range(3,5):
+                remove_if_not_best_kicker(winning_hands, i)
+        else:
+            remove_if_not_best_kicker(winning_hands, 4)
 
     # 3 of a kind
     elif winning_hand_name == hand_names_by_relative_strength[3]:
@@ -279,6 +285,9 @@ def find_winners(hands):
                 best3_val = val
             elif val == best3_val:
                 winning_hands.append(candidates[i])
+        remove_if_not_best_kicker(winning_hands, 3)
+        remove_if_not_best_kicker(winning_hands, 4)
+        
 
     # straight
     elif winning_hand_name == hand_names_by_relative_strength[4]:
@@ -294,15 +303,8 @@ def find_winners(hands):
     elif winning_hand_name == hand_names_by_relative_strength[5]:
         # high card wins
         # cards are sorted, so we just choose the ones with the biggest numbers
-        for i in range(len(candidates[0][1])):
-            cs_to_discard = []
-            vals = [c[1][i].relative_strength for c in candidates]
-            m = max(vals)
-            for c in range(len(vals)):
-                if vals[c] < m:
-                    cs_to_discard.append(c)
-            for c in cs_to_discard:
-                candidates.pop(c)
+        for i in range(5):
+            remove_if_not_best_kicker(candidates, i)
         winning_hands.extend(candidates)
 
     # house
@@ -315,14 +317,12 @@ def find_winners(hands):
             if threes[i] != max3:
                 to_remove.append(i)
 
-        print(f'  {to_remove}')
         to_remove.reverse() # reverse to remove from the back
         for idx in to_remove:
             candidates.pop(idx)
         to_remove.clear()
 
         if len(candidates) > 1:
-            print(candidates)
             # if there are more than 1 we need to find the pairs
             pairs = [find_card_that_does_not_have_value(house[1], max3) for house in candidates]
             max_pair = max(pairs)
@@ -341,19 +341,16 @@ def find_winners(hands):
         fours = [find_pairs(hand[1]) for hand in candidates]
         pairs = [four[0][0] for four in fours]
         max4 = max(pairs)
+        to_remove = []
         for i in range(len(candidates)):
             if pairs[i] != max4:
-                candidates.pop(i)
-                pairs.pop(i)
+                to_remove.append(i)
+        to_remove.reverse()
+        for idx in to_remove:
+            candidates.pop(idx)
+        to_remove.clear()
 
-        if len(candidates) > 1:
-            kickers = [four[1][0] for four in fours]
-            max_kicker = max(kickers)
-            for i in range(len(candidates)):
-                if kickers[i] != max_kicker:
-                    candidates.pop(i)
-                    pairs.pop(i)
-                    kickers.pop(i)
+        remove_if_not_best_kicker(candidates, 4)
         winning_hands.extend(candidates)
 
     # straight flush
@@ -367,6 +364,21 @@ def find_winners(hands):
                 winning_hands.append(straight)
             
     return winning_hands
+
+def remove_if_not_best_kicker(hands:list, card_number:int):
+    '''
+    if the card at "card_number" isn't equal to the best kicker among the hands given, the hand is removed from the list of hands ("card_number" is 0 indexed)
+    '''
+    vals = [h[1][card_number].relative_strength for h in hands]
+    max_kicker = max(vals)
+    to_remove = []
+    for i in range(len(hands)):
+        if hands[i][1][card_number].relative_strength < max_kicker:
+            to_remove.append(i)
+    to_remove.reverse()
+    for idx in to_remove:
+        hands.pop(idx)
+    return
 
 def find_card_that_does_not_have_value(hand, value):
     '''
