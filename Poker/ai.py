@@ -30,7 +30,7 @@ class Ai:
         for p in range(index.NUMBER_OF_PARAMETERS):
             self.weights.append(1)
 
-    def make_decition(self, common_cards:list[_card.Card], to_call:int, pos:int):
+    def take_action(self, common_cards:list[_card.Card], pot, to_call:int, players:int, pos:int, raises:int):
         decition = FOLD
         chip_val = 0
         return [decition, chip_val]
