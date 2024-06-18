@@ -3,6 +3,7 @@ import ai_index as index
 
 BET = 'BET'
 CALL = 'CALL'
+CHECK = 'CHECK'
 FOLD = 'FOLD'
 ALL_IN = 'ALL IN'
 
@@ -61,7 +62,7 @@ class Ai:
         '''
         self.chips += amount
         self.chip_win_loss += amount
-        if self.chips <= 0:
+        if self.chips < 0:
             self.chips += self.chip_base_amount
         return
 
