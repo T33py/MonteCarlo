@@ -1,6 +1,6 @@
 import Poker.pokerhands as poker
 import Poker.card as card
-players = 2
+players = 5
 iterations = 10000000
 
 
@@ -12,6 +12,8 @@ def main():
         hands.append([])
 
     winner_counts = {}
+    hand_type_counts = {}
+    winning_hand_counts = {}
 
     for i in range(iterations):
         poker.deal(hands, deck)
@@ -33,11 +35,27 @@ def main():
             else:
                 winner_counts[_hand] = 1
 
+        for hand in results:
+            ht = hand[0]
+            if ht in hand_type_counts:
+                hand_type_counts[ht] += 1
+            else:
+                hand_type_counts[ht] = 1
+
+        wht = winners[0][0]
+        if wht in winning_hand_counts:
+            winning_hand_counts[wht] += 1
+        else:
+            winning_hand_counts[wht] = 1
+
         poker.empty_hands(hands, deck)
         poker.shuffle(deck)
         if i%1000 == 0:
             print(f'{(i/iterations)*100:0.2f}%', end='\r')
     print()
+
+    print(hand_type_counts)
+    print(winning_hand_counts)
 
     ws = []
     cs = []
