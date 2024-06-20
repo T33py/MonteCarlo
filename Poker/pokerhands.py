@@ -32,7 +32,7 @@ def main():
 def identify_hands(hands):
     '''
     Takes in a list of the hands to identify based on the common cards that should be placed as the first item in the list. [[*common_cards*], [*hand1*], [*hand2*], etc.]
-    Returns a list of resulting hands with 2 items ["name of hand", [*cards that make up the strongest poker hand*]] for each hand
+    Returns a list of resulting hands with 2 items ["name of hand", [*cards that make up the strongest poker hand*], [*cards that give the hand its name*]] for each hand
     '''
     result = []
     for hand in hands[1:]:
@@ -42,7 +42,7 @@ def identify_hands(hands):
 def identify_hand(hand: list[Card], common_cards: list[Card]):
     '''
     Takes in a list of cards in the players hand, and a list of common cards (assumed to be 5 long).
-    Returns a list with 2 items ["name of hand", [*cards that make up the strongest poker hand*]]
+    Returns a list with 2 items ["name of hand", [*cards that make up the strongest poker hand*], [*cards that give the hand its name*]]
     '''
     values = {}
     values_cards = {}
@@ -70,6 +70,7 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
             fours += 1
             fours_cards.append(values_cards[value])
     
+    # straight
     is_straight = False
     is_royal = False
     vals_sort = sorted(values)
@@ -104,6 +105,7 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
             else:
                 straight_cards.pop(0) 
 
+    # flush
     is_flush = False
     flush_cards = []
     for suit in suits:
@@ -121,6 +123,7 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
 
     cards_that_is_in_hand = []
 
+    # what hand do we have
     pairs_cards = sorted(pairs_cards, key=lambda p: p[0].relative_strength)
     if pairs == 1:
         hand_is = hand_names_by_relative_strength[1]
@@ -214,6 +217,8 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
         hand_is = hand_names_by_relative_strength[9]
         # should be the straight flush from "straight flush check"
 
+    cards_that_define_hand = cards_that_is_in_hand.copy()
+
     # backfill with strongest kicker
     all_cards = []
     all_cards.extend(hand)
@@ -226,8 +231,9 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
                 break
 
     # order cards by relative strenght
+    cards_that_define_hand = sorted(cards_that_define_hand, key=lambda p: p.relative_strength, reverse=True)
     cards_that_is_in_hand = sorted(cards_that_is_in_hand, key=lambda p: p.relative_strength, reverse=True)
-    return [hand_is, cards_that_is_in_hand]
+    return [hand_is, cards_that_is_in_hand, cards_that_define_hand]
 
 def find_winners(hands):
     '''
