@@ -16,7 +16,7 @@ def main():
 
 class PokerGame:
     verbose = True
-    number_of_players = 5
+    number_of_players = 8
     starting_chips: int = 1000
     big_blind: int = 10
     small_blind: int = 5
@@ -49,13 +49,24 @@ class PokerGame:
         print(f'set up to play {self.currently_playing}')
 
         # play
-        print('preflop setup')
-        self.preflop(pots, players_in_pots)
-        if self.verbose:
-            print(f'hands: {self.compile_hands(self.currently_playing)}\n bets: {self.pot_contribution}\n pots: {pots}')
-        print('preflop play')
+        print('PREFLOP')
+        self.print_state(pots)
+        self.do_preflop(pots, players_in_pots)
+        self.do_play(pots, players_in_pots)
+        print('FLOP')
+        self.print_state(pots)
+        self.do_flop(pots, players_in_pots)
+        self.do_play(pots, players_in_pots)
+        print('TURN')
+        self.print_state(pots)
+        self.do_turn(pots, players_in_pots)
+        self.do_play(pots, players_in_pots)
+        print('RIVER')
+        self.print_state(pots)
+        self.do_river(pots, players_in_pots)
         self.do_play(pots, players_in_pots)
 
+        self.print_state(pots)
         self.payout(pots, players_in_pots)
 
         # clean up
@@ -72,10 +83,15 @@ class PokerGame:
                 player.chips += player.chip_base_amount
         return
 
+    def print_state(self, pots):
+        if self.verbose:
+            print(f'hands: {self.compile_hands(self.currently_playing)}\n bets: {self.pot_contribution}\n pots: {pots}')
+        return
+
     def do_play(self, pots:list[int], players_in_pots: list[list[Ai]]):
         print(f'playing with {self.currently_playing}')
         has_action = [True for player in self.currently_playing]
-        while self.more_actions(has_action):
+        while self.more_actions(has_action) and len(self.currently_playing) > 1:
             player = self.currently_playing[self.turn]
             if player.chips > 0:
                 if self.verbose:
@@ -117,6 +133,7 @@ class PokerGame:
                     has_action[self.turn] = False
                     amount = action[1]
                     player.change_chips(-amount)
+                    self.pot_contribution[self.turn] += amount
                     diff = max(self.pot_contribution) - amount
                     if diff < 0: # if the player raised with the all in
                         self.number_of_raises += 1
@@ -128,12 +145,15 @@ class PokerGame:
                     players_in_pots.insert(0, players_not_allin)
                     self.currently_playing = players_not_allin
             has_action[self.turn] = False
+
+            if self.verbose:
+                self.print_state(pots)
             
             self.turn = (self.turn + 1) % len(self.currently_playing)
             input()
         return
 
-    def preflop(self, pots:list[int], players_in_pots):
+    def do_preflop(self, pots:list[int], players_in_pots):
         # setup
         for player in self.players:
             player.current_phase = ai_index.PRE_FLOP
@@ -156,6 +176,35 @@ class PokerGame:
             player.hand.append(draw(self.deck))
 
         # play
+        return
+    
+    def do_flop(self, pots:list[int], players_in_pots: list[list[Ai]]):
+        # setup
+        for player in self.players:
+            player.current_phase = ai_index.FLOP
+        for i in range(len(self.pot_contribution)):
+            self.pot_contribution[i] = 0
+        self.common_cards.append(draw(self.deck))
+        self.common_cards.append(draw(self.deck))
+        self.common_cards.append(draw(self.deck))
+        return
+
+    def do_turn(self, pots:list[int], players_in_pots: list[list[Ai]]):
+        # setup
+        for player in self.players:
+            player.current_phase = ai_index.TURN
+        for i in range(len(self.pot_contribution)):
+            self.pot_contribution[i] = 0
+        self.common_cards.append(draw(self.deck))
+        return
+
+    def do_river(self, pots:list[int], players_in_pots: list[list[Ai]]):
+        # setup
+        for player in self.players:
+            player.current_phase = ai_index.RIVER
+        for i in range(len(self.pot_contribution)):
+            self.pot_contribution[i] = 0
+        self.common_cards.append(draw(self.deck))
         return
     
     def payout(self, pots:list[int], players_in_pots: list[list[Ai]]):

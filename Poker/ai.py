@@ -55,7 +55,9 @@ class Ai:
             bet_size = self.chips
         elif bet_size > to_call and bet_size >= self.big_blind:
             decition = BET
-        elif self.weights[index.CALL_CUTOFF] * self.big_blind >= to_call - bet_size:
+            if self.chips < bet_size:
+                bet_size = self.chips
+        elif self.weights[index.CALL_CUTOFF] * self.big_blind >= to_call - bet_size and to_call > 0:
             decition = CALL
             bet_size = to_call
         elif to_call == 0:
@@ -110,8 +112,6 @@ class Ai:
         '''
         self.chips += amount
         self.chip_win_loss += amount
-        if self.chips < 0:
-            self.chips += self.chip_base_amount
         return
 
     def set_chip_base_amount(self, amount):
