@@ -8,9 +8,12 @@ def main():
     game = PokerGame()
     game.setup_players()
     print(f'players {game.players}')
+    redo = True
+    while redo:
+        game.play_round()
 
-    game.play_round()
-
+        if input('NEXT GAME\n') != '':
+            redo = False
 
     return
 
@@ -43,6 +46,7 @@ class PokerGame:
         self.hands.insert(0, self.common_cards)
         self.currently_playing = [p for p in self.players]
         self.pot_contribution = [0 for p in self.players]
+        # pot is in a list because i am lazy
         pots:list[int] = [ 0 ]
         players_in_pots = [self.currently_playing]
         print(f'players at table {self.players}')
@@ -50,19 +54,15 @@ class PokerGame:
 
         # play
         print('PREFLOP')
-        self.print_state(pots)
         self.do_preflop(pots, players_in_pots)
         self.do_play(pots, players_in_pots)
         print('FLOP')
-        self.print_state(pots)
         self.do_flop(pots, players_in_pots)
         self.do_play(pots, players_in_pots)
         print('TURN')
-        self.print_state(pots)
         self.do_turn(pots, players_in_pots)
         self.do_play(pots, players_in_pots)
         print('RIVER')
-        self.print_state(pots)
         self.do_river(pots, players_in_pots)
         self.do_play(pots, players_in_pots)
 
@@ -77,10 +77,12 @@ class PokerGame:
         p = self.players.pop(0)
         self.players.append(p)
 
-        # rebuy
+        # reset players for next game
         for player in self.players:
-            if player.chips == 0:
-                player.chips += player.chip_base_amount
+            print(f'player {player} ended with {player.chips} and a win/loss of {player.chip_win_loss}')
+            player.reset()
+            if player.chips < self.big_blind:
+                player.chips = player.chip_base_amount
         return
 
     def print_state(self, pots):
@@ -93,9 +95,14 @@ class PokerGame:
         has_action = [True for player in self.currently_playing]
         while self.more_actions(has_action) and len(self.currently_playing) > 1:
             player = self.currently_playing[self.turn]
-            if player.chips > 0:
+            # figure out if anyone needs to do something
+            self.allow_actions(has_action)
+            for i in range(len(self.currently_playing)):
+                if self.currently_playing[i].chips <= 0 or self.currently_playing[i].is_all_in:
+                    has_action[i] = False
+            if has_action[self.turn]:
                 if self.verbose:
-                    print(f'its {player.name}s turn')
+                    print(f'its {player.name}s ({player.chips}) turn')
                 action = player.take_action(
                     common_cards=self.hands[0], 
                     pot=sum(pots), 
@@ -138,30 +145,38 @@ class PokerGame:
                     if diff < 0: # if the player raised with the all in
                         self.number_of_raises += 1
                         diff *= -1
-                    pots[0] -= diff
-                    pots.insert(0, diff)
-                    players_not_allin = players_in_pots[0].copy()
-                    players_not_allin.remove(player)
-                    players_in_pots.insert(0, players_not_allin)
-                    self.currently_playing = players_not_allin
-            has_action[self.turn] = False
+                        self.allow_actions(has_action)
+                    player.is_all_in = True
+                    player.is_all_in_for = pots[0] + amount
+                    pots[0] += amount
+                    for _p in self.currently_playing:
+                        if _p.is_all_in:
+                            if amount > _p.is_all_in_with:
+                                _p.is_all_in_for += _p.is_all_in_with
+                            else:
+                                _p.is_all_in_for += amount
 
             if self.verbose:
                 self.print_state(pots)
+                print(f'has action: {has_action}, turn: {self.turn}')
             
             self.turn = (self.turn + 1) % len(self.currently_playing)
             input()
+        for player in self.currently_playing:
+            if player.is_all_in:
+                player.is_all_in_with = 0
         return
 
     def do_preflop(self, pots:list[int], players_in_pots):
+        self.print_state(pots)
         # setup
         for player in self.players:
             player.current_phase = ai_index.PRE_FLOP
         # blinds
-        self.players[0].change_chips(self.small_blind)
+        self.players[0].change_chips(-self.small_blind)
         pots[0] += self.small_blind
         self.pot_contribution[0] += self.small_blind
-        self.players[1].change_chips(self.big_blind)
+        self.players[1].change_chips(-self.big_blind)
         pots[0] += self.big_blind
         self.pot_contribution[1] += self.big_blind
         self.number_of_raises = 1
@@ -179,6 +194,7 @@ class PokerGame:
         return
     
     def do_flop(self, pots:list[int], players_in_pots: list[list[Ai]]):
+        self.print_state(pots)
         # setup
         for player in self.players:
             player.current_phase = ai_index.FLOP
@@ -190,6 +206,7 @@ class PokerGame:
         return
 
     def do_turn(self, pots:list[int], players_in_pots: list[list[Ai]]):
+        self.print_state(pots)
         # setup
         for player in self.players:
             player.current_phase = ai_index.TURN
@@ -199,6 +216,7 @@ class PokerGame:
         return
 
     def do_river(self, pots:list[int], players_in_pots: list[list[Ai]]):
+        self.print_state(pots)
         # setup
         for player in self.players:
             player.current_phase = ai_index.RIVER
@@ -210,18 +228,33 @@ class PokerGame:
     def payout(self, pots:list[int], players_in_pots: list[list[Ai]]):
         if self.verbose:
             print(f'paying out {pots}, {players_in_pots}')
+
         for i in range(len(pots)):
+            pot = pots[i]
             players = players_in_pots[i]
             hands = self.compile_hands(players)
             results = identify_hands(hands)
             winners = find_winners(results)
             for _winner in winners:
                 winner: Ai = players[results.index(_winner)]
-                winner.change_chips(int(pots[i] / len(winners)))
+                max_win = int(pots[i] / len(winners))
+                if winner.is_all_in and max_win > winner.is_all_in_for:
+                    max_win = winner.is_all_in_for / len(winners)
+                winner.change_chips(max_win)
+                pot -= max_win
                 if self.verbose:
-                    print(f'pot {i} ({pots[i]}) goes to {winner} because {hands} -> {winners}')
+                    print(f'{max_win} from pot {i} ({pots[i]} -> {pot}) goes to {winner} because {hands} -> {winners}')
+            if pot > 0:
+                for player in players:
+                    if player.is_all_in:
+                        player.is_all_in_for -= pots[i] - pot
 
-
+                pots[i] = pot
+                for _winner in winners:
+                    winner: Ai = players[results.index(_winner)]
+                    if winner.is_all_in:
+                        players_in_pots[i].remove(winner)
+                self.payout(pots, players_in_pots)
         return
     
     def compile_hands(self, players):

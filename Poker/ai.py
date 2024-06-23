@@ -9,6 +9,12 @@ ALL_IN = 'ALL IN'
 
 
 class Ai:
+    is_all_in:bool = False
+    # the max this player can win from their all in
+    is_all_in_for:int = 0
+    # the amount of chips the player whent all in with
+    is_all_in_with:int = 0
+
     def __init__(self):
         self.name: str = ''
         self.chips: int = 0
@@ -68,8 +74,6 @@ class Ai:
             bet_size = 0
         
         chip_val = int(bet_size)
-        if chip_val > 0 and chip_val < self.big_blind and self.chips >= self.big_blind:
-            chip_val = self.big_blind
 
         if verbose:
             print(f'{self.name} decided to {decition} ({chip_val} chips) because {self.hand} and {common_cards} evaluated to {hand_strength} giving the hand an ev of {ev} with {to_call} to call')
@@ -123,9 +127,23 @@ class Ai:
         return
 
     def reset(self):
-        self.chips = self.chip_base_amount
-        self.chip_win_loss = 0
+        '''
+        reset variables for tracking stuff inside a single hand
+        '''
         self.current_phase = index.PRE_FLOP
+        self.is_all_in = False
+        self.is_all_in_for = 0
+        self.is_all_in_with = 0
+        return
+
+    def hard_reset(self):
+        '''
+        reset EVERYTHING
+        '''
+        self.reset()
+        self.chip_base_amount = 0
+        self.chips = 0
+        self.chip_win_loss = 0
         return
 
     def copy(self):
@@ -135,7 +153,7 @@ class Ai:
         cp = Ai()
         cp.name = self.name
         cp.weights = self.weights.copy()
-        cp.reset()
+        cp.hard_reset()
         return cp
 
     def serialize(self)->str:
