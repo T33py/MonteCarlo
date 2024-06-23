@@ -139,4 +139,6 @@ class Ai:
         return str(self.weights)
 
     def __str__(self):
-        return f'poker ai {self.name}'
+        return f'Ai-{self.name}'
+    def __repr__(self) -> str:
+        return self.__str__()

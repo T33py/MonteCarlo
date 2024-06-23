@@ -15,6 +15,7 @@ def main():
     return
 
 class PokerGame:
+    verbose = True
     number_of_players = 5
     starting_chips: int = 1000
     big_blind: int = 10
@@ -25,9 +26,9 @@ class PokerGame:
     common_cards: list[card.Card] = []
     hands: list[list[card.Card]] = []
     currently_playing: list[Ai] = []
+    pot_contribution: list[int] = []
 
     number_of_raises: int = 0
-    to_call: int = 0
     last_bet: int = 0
     last_better: Ai
     turn: int = 0
@@ -41,6 +42,7 @@ class PokerGame:
         self.hands = [p.hand for p in self.players]
         self.hands.insert(0, self.common_cards)
         self.currently_playing = [p for p in self.players]
+        self.pot_contribution = [0 for p in self.players]
         pots:list[int] = [ 0 ]
         players_in_pots = [self.currently_playing]
         print(f'players at table {self.players}')
@@ -51,6 +53,8 @@ class PokerGame:
         self.preflop(pots, players_in_pots)
         print('preflop play')
         self.do_play(pots, players_in_pots)
+
+        self.payout(pots, players_in_pots)
 
         # clean up
         empty_hands(self.hands, self.deck)
@@ -66,43 +70,64 @@ class PokerGame:
                 player.chips += player.chip_base_amount
         return
 
-    def do_play(self, pots:list[int], players_in_pots):
+    def do_play(self, pots:list[int], players_in_pots: list[list[Ai]]):
         print(f'playing with {self.currently_playing}')
         has_action = [True for player in self.currently_playing]
         while self.more_actions(has_action):
             player = self.currently_playing[self.turn]
             if player.chips > 0:
-                print(f'its {player.name}s turn')
-                action = player.take_action(self.hands[0], sum(pots), self.to_call, len(self.currently_playing), self.turn, self.number_of_raises, True)
+                if self.verbose:
+                    print(f'its {player.name}s turn')
+                action = player.take_action(
+                    common_cards=self.hands[0], 
+                    pot=sum(pots), 
+                    to_call=max(self.pot_contribution) - self.pot_contribution[self.turn], 
+                    players=len(self.currently_playing), 
+                    pos=self.turn, 
+                    raises=self.number_of_raises, 
+                    verbose=self.verbose
+                    )
                 if action[0] == FOLD:
                     self.currently_playing.pop(self.turn)
+                    self.pot_contribution.pop(self.turn)
                     has_action.pop(self.turn)
+                    self.turn -= 1
                 elif action[0] == BET:
                     self.allow_actions(has_action)
                     has_action[self.turn] = False
                     bet = action[1]
                     player.change_chips(-bet)
                     pots[0] += bet
+                    self.pot_contribution[self.turn] += bet
                     diff = bet - self.last_bet
-                    self.to_call += diff
                     self.last_bet = diff
                     self.last_better = player
                     self.number_of_raises += 1
                 elif action[0] == CALL:
                     has_action[self.turn] = False
-                    pots[0] += action[1]
+                    bet = action[1]
+                    pots[0] += bet
                     player.change_chips(-bet)
+                    self.pot_contribution[self.turn] += bet
                 elif action[0] == CHECK:
                     has_action[self.turn] = False
-                    pots[0] += action[1]
                 elif action[0] == ALL_IN:
                     has_action[self.turn] = False
                     amount = action[1]
                     player.change_chips(-amount)
-                    diff = amount - self.last_bet
+                    diff = max(self.pot_contribution) - amount
+                    if diff < 0: # if the player raised with the all in
+                        self.number_of_raises += 1
+                        diff *= -1
+                    pots[0] -= diff
+                    pots.insert(0, diff)
+                    players_not_allin = players_in_pots[0].copy()
+                    players_not_allin.remove(player)
+                    players_in_pots.insert(0, players_not_allin)
+                    self.currently_playing = players_not_allin
+                    
             has_action[self.turn] = False
             
-
             self.turn = (self.turn + 1) % len(self.currently_playing)
             input()
         return
@@ -114,10 +139,11 @@ class PokerGame:
         # blinds
         self.players[0].change_chips(self.small_blind)
         pots[0] += self.small_blind
+        self.pot_contribution[0] += self.small_blind
         self.players[1].change_chips(self.big_blind)
         pots[0] += self.big_blind
+        self.pot_contribution[1] += self.big_blind
         self.number_of_raises = 1
-        self.to_call = self.big_blind
         self.last_bet = self.big_blind
         self.last_better = self.players[1]
         self.turn = 2
@@ -130,6 +156,30 @@ class PokerGame:
 
         # play
         return
+    
+    def payout(self, pots:list[int], players_in_pots: list[list[Ai]]):
+        if self.verbose:
+            print(f'paying out {pots}, {players_in_pots}')
+        for i in range(len(pots)):
+            players = players_in_pots[i]
+            hands = self.compile_hands(players)
+            results = identify_hands(hands)
+            winners = find_winners(results)
+            for _winner in winners:
+                winner: Ai = players[results.index(_winner)]
+                winner.change_chips(int(pots[i] / len(winners)))
+                if self.verbose:
+                    print(f'pot {i} ({pots[i]}) goes to {winner} because {hands} -> {winners}')
+
+
+        return
+    
+    def compile_hands(self, players):
+        hnds = []
+        hnds.append(self.common_cards)
+        for player in players:
+            hnds.append(player.hand)
+        return hnds
 
     def allow_actions(self, actions):
         for i in range(len(actions)):
@@ -149,7 +199,7 @@ class PokerGame:
             player.set_chip_base_amount(self.starting_chips)
             player.big_blind = self.big_blind
             for j in range(len(player.weights)):
-                player.weights[j] = random.uniform(0.1, 2)
+                player.weights[j] = random.uniform(0.1, 1.1)
             print(f'player{i} set up')
             self.players.append(player)
         return

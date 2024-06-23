@@ -51,6 +51,7 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
     add_cards_to_dicts(hand, values, values_cards, suits, suits_cards)
     add_cards_to_dicts(common_cards, values, values_cards, suits, suits_cards)
     hand_is = hand_names_by_relative_strength[0]
+
     
     # # of a kind
     pairs = 0
@@ -224,7 +225,7 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
     all_cards.extend(hand)
     all_cards.extend(common_cards)
     all_cards = sorted(all_cards, key=lambda p: p.relative_strength, reverse=True)
-    while len(cards_that_is_in_hand) < 5:
+    while len(cards_that_is_in_hand) < 5 and len(cards_that_is_in_hand) < len(all_cards):
         for card in all_cards:
             if not (card in cards_that_is_in_hand):
                 cards_that_is_in_hand.append(card)
@@ -233,6 +234,8 @@ def identify_hand(hand: list[Card], common_cards: list[Card]):
     # order cards by relative strenght
     cards_that_define_hand = sorted(cards_that_define_hand, key=lambda p: p.relative_strength, reverse=True)
     cards_that_is_in_hand = sorted(cards_that_is_in_hand, key=lambda p: p.relative_strength, reverse=True)
+    if len(cards_that_define_hand) == 0:
+        cards_that_define_hand.append(cards_that_is_in_hand[0])
     return [hand_is, cards_that_is_in_hand, cards_that_define_hand]
 
 def find_winners(hands):
@@ -256,6 +259,7 @@ def find_winners(hands):
         for i in range(5):
             remove_if_not_best_kicker(candidates, i)
         winning_hands.extend(candidates)
+        
 
     # pair / two pair
     elif winning_hand_name == hand_names_by_relative_strength[1] or winning_hand_name == hand_names_by_relative_strength[2]:
@@ -269,7 +273,7 @@ def find_winners(hands):
                 winning_hands.clear()
                 winning_hands.append(candidates[i])
                 best_pair = pair
-            if cmp == 0:
+            elif cmp == 0:
                 winning_hands.append(candidates[i])
         
         if winning_hand_name == hand_names_by_relative_strength[1]:
@@ -375,6 +379,10 @@ def remove_if_not_best_kicker(hands:list, card_number:int):
     '''
     if the card at "card_number" isn't equal to the best kicker among the hands given, the hand is removed from the list of hands ("card_number" is 0 indexed)
     '''
+    if len(hands) == 0:
+        return
+    if len(hands[0][1]) <= card_number:
+        return
     vals = [h[1][card_number].relative_strength for h in hands]
     max_kicker = max(vals)
     to_remove = []
