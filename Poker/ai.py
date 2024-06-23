@@ -157,7 +157,13 @@ class Ai:
         return cp
 
     def serialize(self)->str:
+        '''
+        generates a single line representation of this
+        '''
         return str(self.weights)
+    
+    def deserialize(self, string):
+        self.weights = eval(string)
 
     def __str__(self):
         return f'Ai-{self.name}'

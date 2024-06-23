@@ -18,29 +18,33 @@ def main():
     return
 
 class PokerGame:
-    verbose = True
-    number_of_players = 8
-    starting_chips: int = 1000
-    big_blind: int = 10
-    small_blind: int = 5
-
-    deck: list[card.Card] = []
-    players: list[Ai] = []
-    common_cards: list[card.Card] = []
-    hands: list[list[card.Card]] = []
-    currently_playing: list[Ai] = []
-    pot_contribution: list[int] = []
-
-    number_of_raises: int = 0
-    last_bet: int = 0
-    last_better: Ai
-    turn: int = 0
 
     def __init__(self):
+        # TODO: store and expose game stats - hands bets etc.
+        self.number = 0
+        self.verbose = True
+        self.number_of_players = 8
+        self.starting_chips: int = 1000
+        self.big_blind: int = 10
+        self.small_blind: int = 5
+
+        self.deck: list[card.Card] = []
+        self.players: list[Ai] = []
+        self.common_cards: list[card.Card] = []
+        self.hands: list[list[card.Card]] = []
+        self.currently_playing: list[Ai] = []
+        self.pot_contribution: list[int] = []
+
+        self.number_of_raises: int = 0
+        self.last_bet: int = 0
+        self.last_better: Ai
+        self.turn: int = 0
         self.deck = make_deck()
         shuffle(self.deck)
 
     def play_round(self):
+        if self.verbose:
+            print(f'game {self.number} starting round')
         # setup
         self.hands = [p.hand for p in self.players]
         self.hands.insert(0, self.common_cards)
@@ -49,20 +53,20 @@ class PokerGame:
         # pot is in a list because i am lazy
         pots:list[int] = [ 0 ]
         players_in_pots = [self.currently_playing]
-        print(f'players at table {self.players}')
-        print(f'set up to play {self.currently_playing}')
+        # print(f'players at table {self.players}')
+        # print(f'set up to play {self.currently_playing}')
 
         # play
-        print('PREFLOP')
+        # print('PREFLOP')
         self.do_preflop(pots, players_in_pots)
         self.do_play(pots, players_in_pots)
-        print('FLOP')
+        # print('FLOP')
         self.do_flop(pots, players_in_pots)
         self.do_play(pots, players_in_pots)
-        print('TURN')
+        # print('TURN')
         self.do_turn(pots, players_in_pots)
         self.do_play(pots, players_in_pots)
-        print('RIVER')
+        # print('RIVER')
         self.do_river(pots, players_in_pots)
         self.do_play(pots, players_in_pots)
 
@@ -72,6 +76,9 @@ class PokerGame:
         # clean up
         empty_hands(self.hands, self.deck)
         shuffle(self.deck)
+        self.number_of_raises = 0
+        self.last_bet = 0
+        self.turn = 0
 
         # move button
         p = self.players.pop(0)
@@ -79,7 +86,7 @@ class PokerGame:
 
         # reset players for next game
         for player in self.players:
-            print(f'player {player} ended with {player.chips} and a win/loss of {player.chip_win_loss}')
+            # print(f'player {player} ended with {player.chips} and a win/loss of {player.chip_win_loss}')
             player.reset()
             if player.chips < self.big_blind:
                 player.chips = player.chip_base_amount
@@ -91,8 +98,9 @@ class PokerGame:
         return
 
     def do_play(self, pots:list[int], players_in_pots: list[list[Ai]]):
-        print(f'playing with {self.currently_playing}')
+        # print(f'playing with {self.currently_playing}')
         has_action = [True for player in self.currently_playing]
+        checks = 0
         while self.more_actions(has_action) and len(self.currently_playing) > 1:
             player = self.currently_playing[self.turn]
             # figure out if anyone needs to do something
@@ -128,14 +136,17 @@ class PokerGame:
                     self.last_bet = diff
                     self.last_better = player
                     self.number_of_raises += 1
+                    checks = 0
                 elif action[0] == CALL:
                     has_action[self.turn] = False
                     bet = action[1]
                     pots[0] += bet
                     player.change_chips(-bet)
                     self.pot_contribution[self.turn] += bet
+                    checks += 1
                 elif action[0] == CHECK:
                     has_action[self.turn] = False
+                    checks += 1
                 elif action[0] == ALL_IN:
                     has_action[self.turn] = False
                     amount = action[1]
@@ -146,6 +157,9 @@ class PokerGame:
                         self.number_of_raises += 1
                         diff *= -1
                         self.allow_actions(has_action)
+                        checks = 0
+                    else:
+                        checks += 1
                     player.is_all_in = True
                     player.is_all_in_for = pots[0] + amount
                     pots[0] += amount
@@ -159,9 +173,12 @@ class PokerGame:
             if self.verbose:
                 self.print_state(pots)
                 print(f'has action: {has_action}, turn: {self.turn}')
+
+            if checks == len(self.currently_playing):
+                break
             
             self.turn = (self.turn + 1) % len(self.currently_playing)
-            input()
+            # input()
         for player in self.currently_playing:
             if player.is_all_in:
                 player.is_all_in_with = 0
@@ -235,15 +252,22 @@ class PokerGame:
             hands = self.compile_hands(players)
             results = identify_hands(hands)
             winners = find_winners(results)
+            to_pop = None
             for _winner in winners:
                 winner: Ai = players[results.index(_winner)]
                 max_win = int(pots[i] / len(winners))
-                if winner.is_all_in and max_win > winner.is_all_in_for:
+                if winner.is_all_in and max_win > winner.is_all_in_for and len(winners) > 1:
                     max_win = winner.is_all_in_for / len(winners)
+                    to_pop = winner
                 winner.change_chips(max_win)
+                if pot == 1:
+                    max_win += 1
                 pot -= max_win
                 if self.verbose:
                     print(f'{max_win} from pot {i} ({pots[i]} -> {pot}) goes to {winner} because {hands} -> {winners}')
+                
+            if to_pop is Ai:
+                players.pop(to_pop)
             if pot > 0:
                 for player in players:
                     if player.is_all_in:
@@ -276,6 +300,8 @@ class PokerGame:
         return False
 
     def setup_players(self):
+        if self.verbose:
+            print(f'game {self.number} setting up {self.number_of_players} new AIs')
         for i in range(self.number_of_players):
             player = Ai()
             player.name = str(i)
@@ -283,7 +309,7 @@ class PokerGame:
             player.big_blind = self.big_blind
             for j in range(len(player.weights)):
                 player.weights[j] = random.uniform(0.1, 1.1)
-            print(f'player{i} set up')
+            # print(f'player{i} set up')
             self.players.append(player)
         return
 
