@@ -37,7 +37,7 @@ class Ai:
         hand_strength = self.calculate_handstrength(common_cards)
         remaining_chipcount_factor = self.weights[index.REMAINING_CHIPCOUNT_VALUE] * (self.chips/self.big_blind)
         pot_factor = self.weights[index.POT_SIZE_VALUE] * (pot/self.big_blind)
-        needed_to_call_factor = self.weights[index.NEEDED_TO_CALL_MODIFIER] * (pot/self.big_blind)
+        needed_to_call_factor = self.weights[index.NEEDED_TO_CALL_MODIFIER] * (to_call/self.big_blind)
         other_players_factor = self.weights[index.NUMBER_OF_OTHER_PLAYERS_MODIFIER] * players
         position_factor = self.weights[index.POSITION_MODIFIER] * pos
         raises_factor = self.weights[index.NUMBER_OF_RAISES_MODIFIER] * (raises * self.weights[index.NUMBER_OF_RAISES_MULTIPLIER])
@@ -55,7 +55,10 @@ class Ai:
             bet_size = self.chips
         elif bet_size > to_call and bet_size >= self.big_blind:
             decition = BET
-        elif to_call == 0 and self.weights[index.CHECK_CUTOFF] * self.big_blind > bet_size:
+        elif self.weights[index.CALL_CUTOFF] * self.big_blind >= to_call - bet_size:
+            decition = CALL
+            bet_size = to_call
+        elif to_call == 0:
             decition = CHECK
             bet_size = 0
         else:

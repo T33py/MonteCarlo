@@ -51,6 +51,8 @@ class PokerGame:
         # play
         print('preflop setup')
         self.preflop(pots, players_in_pots)
+        if self.verbose:
+            print(f'hands: {self.compile_hands(self.currently_playing)}\n bets: {self.pot_contribution}\n pots: {pots}')
         print('preflop play')
         self.do_play(pots, players_in_pots)
 
@@ -125,7 +127,6 @@ class PokerGame:
                     players_not_allin.remove(player)
                     players_in_pots.insert(0, players_not_allin)
                     self.currently_playing = players_not_allin
-                    
             has_action[self.turn] = False
             
             self.turn = (self.turn + 1) % len(self.currently_playing)
