@@ -2,7 +2,8 @@ from Poker.game import PokerGame
 from Poker.ai import Ai
 import random
 
-iterations = 10000
+generations = 100
+iterations_per_gen = 1000
 files = 'test1'
 games_to_run = 100
 players_per_game = 5
@@ -19,30 +20,32 @@ def main():
             player.name = f'table {i} gen {0}'
         games.append(game)
 
-    i = 0
-    while i < iterations:
-        for game in games:
-            game.play_round()
-        if i%1 == 0:
-            print(f'{(i/iterations)*100:0.2f}%', end='\r')
+    iters = generations * iterations_per_gen
+    icount = 0
+    for g in range(generations):
+        for i in range(iterations_per_gen):
+            for game in games:
+                game.play_round()
+            icount += 1
+            if icount%100 == 0:
+                print(f'{(icount/iters)*100:0.2f}%', end='\r')
 
-        if i%1000 == 0:
-            ais = list_ais(games)
-            serialize(f'Poker/dump/{files}{i}.ai', ais)
-            ais = sorted(ais, key=lambda ai: ai.chip_win_loss, reverse=True)
-            stats_output(f'Poker/dump/{files}_stats.txt', ais, i)
-            winners = ais[0:int((games_to_run*players_per_game)/4)]
-            for ai in winners:
-                ai.hard_reset()
-            children = breed(winners)
-            mutations = mutate(winners)
-            next_gen = winners.copy()
-            next_gen.extend(children)
-            next_gen.extend(mutations)
-            if len(next_gen) < games_to_run * players_per_game:
-                next_gen.append(ais[0])
-            populate_tables(next_gen, games)
-        i += 1
+        ais = list_ais(games)
+        serialize(f'Poker/dump/{files}{g}.ai', ais)
+        ais = sorted(ais, key=lambda ai: ai.chip_win_loss, reverse=True)
+        stats_output(f'Poker/dump/{files}_stats{g}.txt', ais, g)
+        winners = ais[0:int((games_to_run*players_per_game)/4)]
+        for ai in winners:
+            ai.hard_reset()
+        children = breed(winners)
+        mutations = mutate(winners)
+        next_gen = winners.copy()
+        next_gen.extend(children)
+        next_gen.extend(mutations)
+        while len(next_gen) < games_to_run * players_per_game: # just get some random ones, just in case they we hit by bad variance
+            next_gen.append(ais[random.randint(0,len(ais)-1)])
+        populate_tables(next_gen, games)
+        g += 1
     return
 
 def populate_tables(ais: list[Ai], games: list[PokerGame]):
@@ -67,7 +70,7 @@ def breed(ais: list[Ai]):
         ai2 = ais[i+1]
         ai2_name = ai2.name.split(' ')
         child = ai1.copy()
-        child.name = f'descended {ai1_name[1]},{ai2_name[1]} gen {int(ai1_name[3])+1}'
+        child.name = f'descended {min([ai1[3], ai2[3]])} gen {int(ai1_name[3])+1}'
         for w in range(len(child.weights)):
             if random.uniform(-1,1) > 0:
                 child.weights[w] = ai2.weights[w]
@@ -96,30 +99,30 @@ def list_ais(games:list[PokerGame]) -> list[Ai]:
 def serialize(filename, ais:list[Ai]):
     serialized = []
     for ai in ais:
-        serialized.append(ai.serialize())
+        serialized.append(ai.serialize()+'\n')
     
     with open(filename, 'a') as file:
         file.writelines(serialized)
     return
 
 def stats_output(filename, ais:list[Ai], gen):
-    stats = [f'#########gen{gen}#########']
+    stats = [f'#########gen{gen}#########\n']
 
-    stats.append(f'ais: {len(ais)}')
+    stats.append(f'ais: {len(ais)}\n')
 
     wls = [ai.chip_win_loss for ai in ais]
     gtz = 0
     for wl in wls:
         if wl > 0:
-            gtz += 0
-    wlstat = f'wl_max: {wls[0]}, wls>0: {gtz}, wl_min: {wls[len(wls)-1]}'
+            gtz += 1
+    wlstat = f'wl_max: {wls[0]}, wls>0: {gtz}, wl_min: {wls[len(wls)-1]}\n'
     stats.append(wlstat)
 
-    stats.append(f'TOP10')
+    stats.append(f'TOP10\n')
     for ai in ais[0:10]:
-        stats.append(f'   {ai.name}: wl {ai.chip_win_loss}')
+        stats.append(f'   {ai.name}: wl {ai.chip_win_loss}\n')
 
-    stats = [f'##########################']
+    stats.append(f'##########################\n')
     with open(filename, 'a') as file:
         file.writelines(stats)
     return

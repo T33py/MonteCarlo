@@ -112,7 +112,7 @@ class Ai:
 
     def change_chips(self, amount):
         '''
-        change number of chips by the given amount
+        change number of chips by the given amount - this function should be used only for chip count changes that you want tracked
         '''
         self.chips += amount
         self.chip_win_loss += amount
@@ -153,7 +153,13 @@ class Ai:
         cp = Ai()
         cp.name = self.name
         cp.weights = self.weights.copy()
+        cp.chips = self.chips
+        cp.chip_base_amount = self.chip_base_amount
+        cp.chip_win_loss = self.chip_win_loss
+        cp.big_blind = self.big_blind
+        cp.current_phase = self.current_phase
         cp.hard_reset()
+
         return cp
 
     def serialize(self)->str:

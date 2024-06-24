@@ -46,6 +46,10 @@ class PokerGame:
         if self.verbose:
             print(f'game {self.number} starting round')
         # setup
+        for player in self.players:
+            player.big_blind = self.big_blind
+            if player.chips < self.big_blind:
+                player.chips += player.chip_base_amount
         self.hands = [p.hand for p in self.players]
         self.hands.insert(0, self.common_cards)
         self.currently_playing = [p for p in self.players]
@@ -88,8 +92,6 @@ class PokerGame:
         for player in self.players:
             # print(f'player {player} ended with {player.chips} and a win/loss of {player.chip_win_loss}')
             player.reset()
-            if player.chips < self.big_blind:
-                player.chips = player.chip_base_amount
         return
 
     def print_state(self, pots):
@@ -252,33 +254,20 @@ class PokerGame:
             hands = self.compile_hands(players)
             results = identify_hands(hands)
             winners = find_winners(results)
-            to_pop = None
             for _winner in winners:
                 winner: Ai = players[results.index(_winner)]
                 max_win = int(pots[i] / len(winners))
                 if winner.is_all_in and max_win > winner.is_all_in_for and len(winners) > 1:
                     max_win = winner.is_all_in_for / len(winners)
-                    to_pop = winner
                 winner.change_chips(max_win)
-                if pot == 1:
-                    max_win += 1
                 pot -= max_win
                 if self.verbose:
                     print(f'{max_win} from pot {i} ({pots[i]} -> {pot}) goes to {winner} because {hands} -> {winners}')
                 
-            if to_pop is Ai:
-                players.pop(to_pop)
-            if pot > 0:
-                for player in players:
-                    if player.is_all_in:
-                        player.is_all_in_for -= pots[i] - pot
-
-                pots[i] = pot
-                for _winner in winners:
-                    winner: Ai = players[results.index(_winner)]
-                    if winner.is_all_in:
-                        players_in_pots[i].remove(winner)
-                self.payout(pots, players_in_pots)
+            if pot > 0: # handle rounding errors by giving the top hand any extra chips
+                winner: Ai = players[results.index(winners[0])]
+                winner.change_chips(pot)
+                
         return
     
     def compile_hands(self, players):
