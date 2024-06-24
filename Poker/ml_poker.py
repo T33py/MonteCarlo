@@ -70,7 +70,7 @@ def breed(ais: list[Ai]):
         ai2 = ais[i+1]
         ai2_name = ai2.name.split(' ')
         child = ai1.copy()
-        child.name = f'descended {min([ai1[3], ai2[3]])} gen {int(ai1_name[3])+1}'
+        child.name = f'descended {min([ai1_name[3], ai2_name[3]])} gen {int(ai1_name[3])+1}'
         for w in range(len(child.weights)):
             if random.uniform(-1,1) > 0:
                 child.weights[w] = ai2.weights[w]
