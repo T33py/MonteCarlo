@@ -1,29 +1,40 @@
 from Poker.game import PokerGame
 from Poker.ai import Ai
+from Poker.ai_reading import deserialize_ais
 import random
 
+deserialize_from = 'Poker/dump/test3_1.ai'
 generations = 100
-iterations_per_gen = 1000
-files = 'test1'
+games_per_gen = 2500
+files = 'test4'
 games_to_run = 100
 players_per_game = 5
 
 def main():
+    players = deserialize_ais(deserialize_from, number=games_to_run*players_per_game)
+    while len(players) < games_to_run*players_per_game:
+        players.append(players[random.randint(0,len(players)-1)])
     games:list[PokerGame] = []
     for i in range(games_to_run):
         game = PokerGame()
         game.number = i
         game.number_of_players = players_per_game
         game.verbose = False
-        game.setup_players()
+        # game.setup_players()
+        games.append(game)
+    populate_tables(players, games)
+    players = [] # dont leave 100s of references to ai's lying around
+
+    # i have not decided how i want to format ai data beyond the weights
+    for game in games:
         for player in game.players:
             player.name = f'table {i} gen {0}'
-        games.append(game)
 
-    iters = generations * iterations_per_gen
+
+    iters = generations * games_per_gen
     icount = 0
     for g in range(generations):
-        for i in range(iterations_per_gen):
+        for i in range(games_per_gen):
             for game in games:
                 game.play_round()
             icount += 1
@@ -42,7 +53,7 @@ def main():
         next_gen = winners.copy()
         next_gen.extend(children)
         next_gen.extend(mutations)
-        while len(next_gen) < games_to_run * players_per_game: # just get some random ones, just in case they we hit by bad variance
+        while len(next_gen) < games_to_run * players_per_game: # just get some random ones, just in case they were hit by bad variance
             next_gen.append(ais[random.randint(0,len(ais)-1)])
         populate_tables(next_gen, games)
         g += 1
@@ -83,7 +94,7 @@ def mutate(ais: list[Ai]):
     for i in range(len(ais)):
         child = ais[i].copy()
         for w in range(len(child.weights)):
-            child.weights[w] += random.uniform(-1,1) * 0.1
+            child.weights[w] += random.uniform(-1.1,1.1) * 0.1
             pn = ais[i].name.split(' ')
             child.name = f'mutated m{pn[1]} gen {int(pn[3])+1}'
         mutations.append(child)
@@ -108,7 +119,7 @@ def serialize(filename, ais:list[Ai]):
 def stats_output(filename, ais:list[Ai], gen):
     stats = [f'#########gen{gen}#########\n']
 
-    stats.append(f'ais: {len(ais)}\n')
+    stats.append(f'ais: {len(ais)}\n    games each gen: {games_per_gen}\n    ais from: {deserialize_from}\n')
 
     wls = [ai.chip_win_loss for ai in ais]
     gtz = 0
