@@ -31,8 +31,8 @@ def main():
                 print(f'{(icount/iters)*100:0.2f}%', end='\r')
 
         ais = list_ais(games)
-        serialize(f'Poker/dump/{files}{g}.ai', ais)
         ais = sorted(ais, key=lambda ai: ai.chip_win_loss, reverse=True)
+        serialize(f'Poker/dump/{files}_{g}.ai', ais)
         stats_output(f'Poker/dump/{files}_stats{g}.txt', ais, g)
         winners = ais[0:int((games_to_run*players_per_game)/4)]
         for ai in winners:

@@ -40,7 +40,7 @@ class Ai:
     def take_action(self, common_cards:list[_card.Card], pot, to_call:int, players:int, pos:int, raises:int, verbose:bool):
         decition = FOLD
         chip_val = 0
-        hand_strength = self.calculate_handstrength(common_cards)
+        hand_strength = self.calculate_handstrength(self.hand, common_cards, self.current_phase)
         remaining_chipcount_factor = self.weights[index.REMAINING_CHIPCOUNT_VALUE] * (self.chips/self.big_blind)
         pot_factor = self.weights[index.POT_SIZE_VALUE] * (pot/self.big_blind)
         needed_to_call_factor = self.weights[index.NEEDED_TO_CALL_MODIFIER] * (to_call/self.big_blind)
@@ -79,16 +79,19 @@ class Ai:
             print(f'{self.name} decided to {decition} ({chip_val} chips) because {self.hand} and {common_cards} evaluated to {hand_strength} giving the hand an ev of {ev} with {to_call} to call')
         return [decition, chip_val]
     
-    def calculate_handstrength(self, common_cards:list[_card.Card]):
+    def calculate_handstrength(self, hand:list[_card.Card], common_cards:list[_card.Card], current_phase)->float:
         all_cards = [card for card in common_cards]
-        all_cards.extend(self.hand)
+        all_cards.extend(hand)
         affinities = []
         for card1 in all_cards:
             for card2 in all_cards:
                 if card1 != card2:
-                    affinity = self.card_weight(card1, self.current_phase) * self.card_weight_based_on(card1, card2, self.current_phase)
+                    affinity = self.card_weight(card1, current_phase) * self.card_weight_based_on(card1, card2, current_phase)
                     affinities.append(affinity)
-        return sum(affinities)
+        s:float = 0
+        for af in affinities:
+            s += af
+        return s
 
     def card_weight(self, card:_card.Card, phase)->float:
         '''
@@ -108,7 +111,6 @@ class Ai:
         card1_idx = (card1.value-1) + suit1 + phase
         card2_idx = card1_idx + (52 * (card2.value-1 + suit2))
         return self.weights[card2_idx]
-        return
 
     def change_chips(self, amount):
         '''
@@ -145,6 +147,26 @@ class Ai:
         self.chips = 0
         self.chip_win_loss = 0
         return
+    
+    def generate_preflot_hand_chart(self, deck:list[_card.Card])->list[list]:
+        chart = [[float(0) for i in range(14)] for i in range(14)]
+        counts = [[int(0) for i in range(14)] for i in range(14)]
+        for card1 in deck:
+            for card2 in deck:
+                if card1 != card2:
+                    if card1.suit == card2.suit:
+                        chart[0][card2.relative_strength-1] = f'{_card.cards[card2.value-1]}s'
+                        chart[card2.relative_strength-1][card1.relative_strength-1] += self.calculate_handstrength([card1, card2], [], index.PRE_FLOP)
+                        counts[card2.relative_strength-1][card1.relative_strength-1] += 1
+                    else:
+                        chart[card1.relative_strength-1][0] = f'{_card.cards[card1.value-1]}'
+                        chart[card1.relative_strength-1][card2.relative_strength-1] += self.calculate_handstrength([card1, card2], [], index.PRE_FLOP)
+                        counts[card1.relative_strength-1][card2.relative_strength-1] += 1
+        for x in range(len(chart)):
+            for y in range(len(chart[0])):
+                if counts[x][y] > 0:
+                    chart[x][y] = chart[x][y] / counts[x][y]
+        return chart
 
     def copy(self):
         '''
@@ -159,7 +181,6 @@ class Ai:
         cp.big_blind = self.big_blind
         cp.current_phase = self.current_phase
         cp.hard_reset()
-
         return cp
 
     def serialize(self)->str:
@@ -168,8 +189,15 @@ class Ai:
         '''
         return str(self.weights)
     
-    def deserialize(self, string):
-        self.weights = eval(string)
+    def deserialize(self, string:str):
+        string = string[1:len(string)-2]
+        split = string.split(',')
+
+        for w in range(len(split)):
+            if len(self.weights) > w:
+                self.weights[w] = float(split[w])
+            else:
+                self.weights.append(float(split[w]))
 
     def __str__(self):
         return f'Ai-{self.name}'
