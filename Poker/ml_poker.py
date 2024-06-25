@@ -1,17 +1,18 @@
 from Poker.game import PokerGame
 from Poker.ai import Ai
-from Poker.ai_reading import deserialize_ais
+from Poker.ai_reading import deserialize_ais, stringify_gto_chart
 import random
 
-deserialize_from = 'Poker/dump/test3_1.ai'
+deserialize_from = 'Poker/dump/test7_4.ai'
 generations = 100
-games_per_gen = 2500
-files = 'test4'
+games_per_gen = 15000
+files = 'test8'
 games_to_run = 100
 players_per_game = 5
 
 def main():
     players = deserialize_ais(deserialize_from, number=games_to_run*players_per_game)
+    print(f'deserialized {len(players)} ais')
     while len(players) < games_to_run*players_per_game:
         players.append(players[random.randint(0,len(players)-1)])
     games:list[PokerGame] = []
@@ -23,7 +24,6 @@ def main():
         # game.setup_players()
         games.append(game)
     populate_tables(players, games)
-    players = [] # dont leave 100s of references to ai's lying around
 
     # i have not decided how i want to format ai data beyond the weights
     for game in games:
@@ -38,8 +38,10 @@ def main():
             for game in games:
                 game.play_round()
             icount += 1
-            if icount%100 == 0:
-                print(f'{(icount/iters)*100:0.2f}%', end='\r')
+            if icount % 1000 == 0:
+                populate_tables(players, games)
+            if icount%10 == 0:
+                print(f'{(icount/iters)*100:0.3f}%', end='\r')
 
         ais = list_ais(games)
         ais = sorted(ais, key=lambda ai: ai.chip_win_loss, reverse=True)
@@ -55,17 +57,21 @@ def main():
         next_gen.extend(mutations)
         while len(next_gen) < games_to_run * players_per_game: # just get some random ones, just in case they were hit by bad variance
             next_gen.append(ais[random.randint(0,len(ais)-1)])
-        populate_tables(next_gen, games)
+        players = next_gen
+        populate_tables(players, games)
         g += 1
     return
 
 def populate_tables(ais: list[Ai], games: list[PokerGame]):
+    _ais = ais.copy()
     for game in games:
         players = []
         for i in range(players_per_game):
-            player = ais[random.randint(0,len(ais)-1)]
+            player = _ais[0]
+            if len(_ais) > 1:
+                player = _ais[random.randint(0,len(_ais)-1)]
             players.append(player)
-            ais.remove(player)
+            _ais.remove(player)
         game.players = players
     return
 
@@ -94,7 +100,8 @@ def mutate(ais: list[Ai]):
     for i in range(len(ais)):
         child = ais[i].copy()
         for w in range(len(child.weights)):
-            child.weights[w] += random.uniform(-1.1,1.1) * 0.1
+            if random.uniform(0,5) < 1:
+                child.weights[w] += random.uniform(-0.6,0.6) * 0.1
             pn = ais[i].name.split(' ')
             child.name = f'mutated m{pn[1]} gen {int(pn[3])+1}'
         mutations.append(child)
@@ -132,6 +139,7 @@ def stats_output(filename, ais:list[Ai], gen):
     stats.append(f'TOP10\n')
     for ai in ais[0:10]:
         stats.append(f'   {ai.name}: wl {ai.chip_win_loss}\n')
+        stats.append(stringify_gto_chart(ai) + '\n')
 
     stats.append(f'##########################\n')
     with open(filename, 'a') as file:

@@ -1,6 +1,6 @@
 import Poker.pokerhands as poker
 import Poker.card as card
-players = 5
+players = 8
 iterations = 10000000
 
 
