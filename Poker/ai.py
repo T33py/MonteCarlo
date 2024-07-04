@@ -190,6 +190,9 @@ class Ai:
         return str(self.weights)
     
     def deserialize(self, string:str):
+        '''
+        set this up based on the output from serialize
+        '''
         string = string[1:len(string)-2]
         split = string.split(',')
 

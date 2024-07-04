@@ -3,10 +3,10 @@ from Poker.ai import Ai
 from Poker.ai_reading import deserialize_ais, stringify_gto_chart
 import random
 
-deserialize_from = 'Poker/dump/test7_4.ai'
+deserialize_from = 'Poker/dump/test8_22.ai'
 generations = 100
-games_per_gen = 15000
-files = 'test8'
+games_per_gen = 20000
+files = 'test9'
 games_to_run = 100
 players_per_game = 5
 
@@ -55,7 +55,7 @@ def main():
         next_gen = winners.copy()
         next_gen.extend(children)
         next_gen.extend(mutations)
-        while len(next_gen) < games_to_run * players_per_game: # just get some random ones, just in case they were hit by bad variance
+        while len(next_gen) < games_to_run * players_per_game: # just get some random ones, in case they were hit by bad variance
             next_gen.append(ais[random.randint(0,len(ais)-1)])
         players = next_gen
         populate_tables(players, games)
